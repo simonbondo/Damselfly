@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
@@ -49,7 +49,7 @@ public class Tag
     {
         var objTag = obj as Tag;
 
-        if ( objTag != null )
+        if (objTag != null)
             return objTag.Keyword.Equals(Keyword, StringComparison.OrdinalIgnoreCase);
 
         return false;

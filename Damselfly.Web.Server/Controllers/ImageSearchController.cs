@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.Constants;
+using Damselfly.Core.Constants;
 using Damselfly.Core.DbModels;
 using Damselfly.Core.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -27,7 +27,7 @@ public class ImageSearchController : ControllerBase
         {
             return await _searchService.GetQueryImagesAsync(request);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             _logger.LogError($"Exception during search query: {ex}");
             return new SearchResponse { MoreDataAvailable = false, SearchResults = new int[0] };

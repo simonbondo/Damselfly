@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.DbModels.Models;
+using Damselfly.Core.DbModels.Models;
 using Damselfly.Core.DbModels.Models.APIModels;
 using Damselfly.Core.Models;
 using Damselfly.Core.ScopedServices.Interfaces;
@@ -37,7 +37,7 @@ public class ConfigController : ControllerBase
         var settings = new List<ConfigSetting>();
 
         var allValues = await _configService.GetAllSettingsForUser(userId);
-        if ( allValues != null )
+        if (allValues != null)
             settings.AddRange(allValues);
 
         return settings;
@@ -50,7 +50,7 @@ public class ConfigController : ControllerBase
         var settings = new List<ConfigSetting>();
 
         var allValues = await _configService.GetAllSettingsForUser(null);
-        if ( allValues != null )
+        if (allValues != null)
             settings.AddRange(allValues);
 
         return settings;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -48,9 +48,9 @@ public class WordpressService : IWordpressService
 
             var validToken = await CheckTokenValidity();
 
-            if ( validToken )
+            if (validToken)
             {
-                foreach ( var image in images )
+                foreach (var image in images)
                 {
                     using var memoryStream = new MemoryStream();
 
@@ -79,7 +79,7 @@ public class WordpressService : IWordpressService
                 _statusService.UpdateStatus("Authentication error uploading to Wordpress.");
             }
         }
-        catch ( Exception e )
+        catch (Exception e)
         {
             Logging.LogError($"Error uploading to Wordpress: {e.Message}");
             _statusService.UpdateStatus("Error uploading images to Wordpress. Please check the logs.");
@@ -96,13 +96,13 @@ public class WordpressService : IWordpressService
     {
         var gotToken = false;
 
-        if ( _client == null )
+        if (_client == null)
         {
             // Create the one-time client.
             // TODO: Destroy this if the settings are updated.
             _client = GetClient();
 
-            if ( _client == null )
+            if (_client == null)
                 return false;
         }
 
@@ -110,7 +110,7 @@ public class WordpressService : IWordpressService
         // 24 hours) and if not, obtain one
         gotToken = await _client.Auth.IsValidJWTokenAsync();
 
-        if ( !gotToken )
+        if (!gotToken)
         {
             var user = _configService.Get(ConfigSettings.WordpressUser);
             var pass = _configService.Get(ConfigSettings.WordpressPassword);
@@ -135,7 +135,7 @@ public class WordpressService : IWordpressService
     {
         _client = GetClient();
 
-        if ( _client != null )
+        if (_client != null)
             Logging.Log("Wordpress API client reset.");
     }
 
@@ -151,7 +151,7 @@ public class WordpressService : IWordpressService
         {
             var wpUrl = _configService.Get(ConfigSettings.WordpressURL);
 
-            if ( !string.IsNullOrEmpty(wpUrl) )
+            if (!string.IsNullOrEmpty(wpUrl))
             {
                 var baseUrl = new Uri(wpUrl);
                 var url = new Uri(baseUrl, "/wp-json/");
@@ -169,7 +169,7 @@ public class WordpressService : IWordpressService
                 Logging.LogVerbose("Wordpress integration was not configured.");
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"Unable to create Wordpress Client: {ex.Message}");
             client = null;

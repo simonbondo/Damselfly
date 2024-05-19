@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,7 +14,7 @@ public static class EnumerableExtensions
 
     public static List<T> GetEnumList<T>()
     {
-        var enumArray = (T[])Enum.GetValues(typeof( T ));
+        var enumArray = (T[])Enum.GetValues(typeof(T));
 
         return enumArray.ToList();
     }

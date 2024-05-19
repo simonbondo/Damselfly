@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -31,8 +31,8 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
     private readonly WorkService _workService;
     private bool _fullIndexComplete;
 
-    public IndexingService( IServiceScopeFactory scopeFactory, IStatusService statusService,
-        ImageProcessService imageService, ConfigService config, ImageCache imageCache, 
+    public IndexingService(IServiceScopeFactory scopeFactory, IStatusService statusService,
+        ImageProcessService imageService, ConfigService config, ImageCache imageCache,
         FolderWatcherService watcherService, WorkService workService)
     {
         _scopeFactory = scopeFactory;
@@ -54,7 +54,7 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
 
     public async Task<ICollection<IProcessJob>> GetPendingJobs(int maxCount)
     {
-        if ( _fullIndexComplete )
+        if (_fullIndexComplete)
         {
             using var scope = _scopeFactory.CreateScope();
             using var db = scope.ServiceProvider.GetService<ImageContext>();
@@ -66,11 +66,11 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
                 .ToArrayAsync();
 
             var jobs = folders.Select(x => new IndexProcess
-                {
-                    Path = new DirectoryInfo(x.Path),
-                    Service = this,
-                    Name = "Indexing"
-                })
+            {
+                Path = new DirectoryInfo(x.Path),
+                Service = this,
+                Name = "Indexing"
+            })
                 .ToArray();
 
             return jobs;
@@ -111,7 +111,7 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
 
             _workService.FlagNewJobs(this);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"Exception when marking folder for reindexing: {ex}");
         }
@@ -136,7 +136,7 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
 
             await MarkFoldersForScan(folders);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"Exception when marking images for reindexing: {ex}");
         }
@@ -144,13 +144,13 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
 
     public event Action OnFoldersChanged;
 
-    private bool IsIndexedFolder( DirectoryInfo dir )
+    private bool IsIndexedFolder(DirectoryInfo dir)
     {
-        var trashFolder = _configService.Get( ConfigSettings.TrashcanFolderName );
+        var trashFolder = _configService.Get(ConfigSettings.TrashcanFolderName);
 
-        if( !string.IsNullOrEmpty( trashFolder ) )
+        if (!string.IsNullOrEmpty(trashFolder))
         {
-            if( dir.Name == trashFolder )
+            if (dir.Name == trashFolder)
                 return false;
         }
 
@@ -181,7 +181,7 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
         // Get all the sub-folders on the disk, but filter out
         // ones we're not interested in.
         var subFolders = folder.SafeGetSubDirectories()
-            .Where(IsIndexedFolder )
+            .Where(IsIndexedFolder)
             .ToList();
 
         try
@@ -195,7 +195,7 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
                 .Include(x => x.Images)
                 .FirstOrDefaultAsync();
 
-            if ( folderToScan == null )
+            if (folderToScan == null)
             {
                 Logging.LogVerbose("Scanning new folder: {0}\\{1}", folder.Parent.Name, folder.Name);
                 folderToScan = new Folder { Path = folder.FullName };
@@ -206,11 +206,11 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
                     folder.Name, folderToScan.Images.Count());
             }
 
-            if ( folderToScan.FolderId == 0 )
+            if (folderToScan.FolderId == 0)
             {
                 Logging.Log($"Adding new folder: {folderToScan.Path}");
 
-                if ( parent != null )
+                if (parent != null)
                     folderToScan.ParentId = parent.FolderId;
 
                 // New folder, add it. 
@@ -228,15 +228,15 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
             // should now be included in the folderlist, so flag it.
             await ScanFolderImages(folderToScan.FolderId);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"Unexpected exception scanning folder {folderToScan.Name}: {ex.Message}");
-            if ( ex.InnerException != null )
+            if (ex.InnerException != null)
                 Logging.LogError($" Inner exception: {ex.InnerException.Message}");
         }
 
         // Scan subdirs recursively.
-        foreach ( var sub in subFolders ) 
+        foreach (var sub in subFolders)
             await IndexFolder(sub, folderToScan);
     }
 
@@ -256,15 +256,15 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
             // Now query the DB for child folders of our current folder
             var dbChildDirs = db.Folders.Where(x => x.ParentId == folderToScan.FolderId).ToList();
 
-            foreach ( var childFolder in dbChildDirs )
+            foreach (var childFolder in dbChildDirs)
                 // Depth-first removal of child folders
                 foldersChanged = await RemoveMissingChildDirs(db, childFolder);
 
             // ...and then look for any DB folders that aren't included in the list of sub-folders.
             // That means they've been removed from the disk, and should be removed from the DB.
-            var missingDirs = dbChildDirs.Where(f => !IsIndexedFolder( new DirectoryInfo(f.Path))).ToList();
+            var missingDirs = dbChildDirs.Where(f => !IsIndexedFolder(new DirectoryInfo(f.Path))).ToList();
 
-            if ( missingDirs.Any() )
+            if (missingDirs.Any())
             {
                 missingDirs.ForEach(x =>
                 {
@@ -280,10 +280,10 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
                 foldersChanged = true;
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"Unexpected exception scanning for removed folders {folderToScan.Name}: {ex.Message}");
-            if ( ex.InnerException != null )
+            if (ex.InnerException != null)
                 Logging.LogError($" Inner exception: {ex.InnerException.Message}");
         }
 
@@ -316,7 +316,7 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
         var folder = new DirectoryInfo(dbFolder.Path);
         var allImageFiles = SafeGetImageFiles(folder);
 
-        if ( allImageFiles == null )
+        if (allImageFiles == null)
             // Null here means we weren't able to read the contents of the directory.
             // So bail, and give up on this folder altogether.
             return false;
@@ -328,7 +328,7 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
         var fileListIsEqual =
             allImageFiles.Select(x => x.Name).ArePermutations(dbFolder.Images.Select(y => y.FileName));
 
-        if ( fileListIsEqual && dbFolder.FolderScanDate != null )
+        if (fileListIsEqual && dbFolder.FolderScanDate != null)
             // Number of images is the same, and the folder has a scan date
             // which implies it's been scanned previously, so nothing to do.
             return true;
@@ -341,28 +341,28 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
         folderImageCount = allImageFiles.Count();
 
         int newImages = 0, updatedImages = 0;
-        foreach ( var file in allImageFiles )
+        foreach (var file in allImageFiles)
             try
             {
                 var dbImage = dbFolder.Images.FirstOrDefault(x =>
                     x.FileName.Equals(file.Name, StringComparison.OrdinalIgnoreCase));
 
-                if ( dbImage != null )
+                if (dbImage != null)
                 {
                     // See if the image has changed since we last indexed it
                     var fileChanged = file.FileIsMoreRecentThan(dbImage.LastUpdated);
 
-                    if ( !fileChanged )
+                    if (!fileChanged)
                     {
                         // File hasn't changed. Look for a sidecar to see if it's been modified.
                         var sidecar = dbImage.GetSideCar();
 
-                        if ( sidecar != null )
+                        if (sidecar != null)
                             // If there's a sidecar, see if that's changed.
                             fileChanged = sidecar.Filename.FileIsMoreRecentThan(dbImage.LastUpdated);
                     }
 
-                    if ( !fileChanged )
+                    if (!fileChanged)
                     {
                         Logging.LogTrace($"Indexed image {dbImage.FileName} unchanged - skipping.");
                         continue;
@@ -371,7 +371,7 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
 
                 var image = dbImage;
 
-                if ( image == null ) image = new Image { FileName = file.Name };
+                if (image == null) image = new Image { FileName = file.Name };
 
                 // Store some info about the disk file
                 image.FileSizeBytes = (int)file.Length;
@@ -381,7 +381,7 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
                 image.Folder = dbFolder;
                 image.FlagForMetadataUpdate();
 
-                if ( dbImage == null )
+                if (dbImage == null)
                 {
                     // Default the sort date to file creation date. It'll get updated
                     // later during indexing to set it to the date-taken date, if one
@@ -402,7 +402,7 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
                     _imageCache.Evict(image.ImageId);
                 }
             }
-            catch ( Exception ex )
+            catch (Exception ex)
             {
                 Logging.LogError($"Exception while scanning for new image {file}: {ex.Message}");
             }
@@ -415,7 +415,7 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
             .Where(x => filesToRemove.Contains(x.FileName))
             .ToList();
 
-        if ( imagesToDelete.Any() )
+        if (imagesToDelete.Any())
         {
             imagesToDelete.ForEach(x => Logging.LogVerbose("Deleting image {0} (ID: {1})", x.FileName, x.ImageId));
 
@@ -437,10 +437,10 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
             $"Indexed folder {dbFolder.Name}: processed {dbFolder.Images.Count()} images ({newImages} new, {updatedImages} updated, {imagesToDelete.Count} removed) in {watch.HumanElapsedTime}.");
 
         // Do this after we scan for images, because we only load folders if they have images.
-        if ( imagesWereAddedOrRemoved )
+        if (imagesWereAddedOrRemoved)
             NotifyFolderChanged();
 
-        if ( imagesWereAddedOrRemoved || updatedImages > 0 )
+        if (imagesWereAddedOrRemoved || updatedImages > 0)
         {
             // Should flag the metadata service here...
         }
@@ -465,14 +465,14 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
             var queryable = db.Folders.Where(f => folderIds.Contains(f.FolderId));
             await db.BatchUpdate(queryable, p => p.SetProperty(x => x.FolderScanDate, x => null));
 
-            if ( folderIds.Count() == 1 )
+            if (folderIds.Count() == 1)
                 _statusService.UpdateStatus("Folder flagged for re-indexing.");
             else
                 _statusService.UpdateStatus($"{folderIds.Count()} folders flagged for re-indexing.");
 
             _workService.FlagNewJobs(this);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"Exception when marking folder for reindexing: {ex}");
         }
@@ -498,7 +498,7 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
 
             return files;
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogWarning("Unable to read files from {0}: {1}", folder.FullName, ex.Message);
             return new List<FileInfo>();
@@ -511,7 +511,7 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
 
     public void StartService()
     {
-        if ( EnableIndexing )
+        if (EnableIndexing)
             _workService.AddJobSource(this);
         else
             Logging.Log("Indexing has been disabled.");
@@ -531,7 +531,7 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
         {
             await Service.IndexFolder(Path, null);
 
-            if ( IsFullIndex )
+            if (IsFullIndex)
                 Logging.Log("Full index compelete.");
         }
 

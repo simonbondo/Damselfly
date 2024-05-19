@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.Models;
+using Damselfly.Core.Models;
 using Damselfly.Core.ScopedServices.Interfaces;
 
 namespace Damselfly.Core.ScopedServices;
@@ -39,7 +39,7 @@ public class SelectionService
     /// </summary>
     public void ClearSelection()
     {
-        if ( selectedImages.Count > 0 )
+        if (selectedImages.Count > 0)
         {
             selectedImages.Clear();
             NotifyStateChanged();
@@ -56,14 +56,14 @@ public class SelectionService
     {
         var added = false;
 
-        foreach ( var img in images )
-            if ( selectedImages.TryAdd(img.ImageId, img) )
+        foreach (var img in images)
+            if (selectedImages.TryAdd(img.ImageId, img))
                 added = true;
 
-        if ( added )
+        if (added)
         {
             NotifyStateChanged();
-            if ( images.Count > 1 && _statusService != null )
+            if (images.Count > 1 && _statusService != null)
                 _statusService.UpdateStatus($"{images.Count} images selected.");
         }
     }
@@ -76,11 +76,11 @@ public class SelectionService
     {
         var removed = false;
 
-        foreach ( var img in images )
-            if ( selectedImages.Remove(img.ImageId) )
+        foreach (var img in images)
+            if (selectedImages.Remove(img.ImageId))
                 removed = true;
 
-        if ( removed )
+        if (removed)
             NotifyStateChanged();
     }
 
@@ -90,10 +90,10 @@ public class SelectionService
     /// <param name="images"></param>
     public void ToggleSelection(List<Image> images)
     {
-        foreach ( var img in images )
+        foreach (var img in images)
             // Try and add it. If it wasn't there, it'll succeed.
             // If it fails, we need to remove it.
-            if ( !selectedImages.TryAdd(img.ImageId, img) )
+            if (!selectedImages.TryAdd(img.ImageId, img))
                 selectedImages.Remove(img.ImageId);
 
         NotifyStateChanged();

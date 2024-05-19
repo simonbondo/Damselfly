@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.Constants;
+using Damselfly.Core.Constants;
 using Damselfly.Core.Models;
 using Damselfly.Core.ScopedServices.Interfaces;
 
@@ -22,7 +22,7 @@ public class SystemConfigSettings
     public bool enableImageEditing { get; set; } = false;
     public bool enableBackgroundThumbs { get; set; } = false;
     public int similarityThreshold { get; set; } = 75;
-    
+
     public void Save(IConfigService configService)
     {
         configService.Set(ConfigSettings.ImportSidecarKeywords, importSidecarKeywords.ToString());
@@ -31,7 +31,7 @@ public class SystemConfigSettings
         configService.Set(ConfigSettings.WordpressURL, wpSettings.URL);
         configService.Set(ConfigSettings.WordpressUser, wpSettings.UserName);
         configService.Set(ConfigSettings.WordpressPassword, wpSettings.Password);
-        
+
         configService.Set(ConfigSettings.WriteAITagsToImages, writeAITagsToImages.ToString());
         configService.Set(ConfigSettings.EnableAIProcessing, enableAIProcessing.ToString());
         configService.Set(ConfigSettings.DisableObjectDetector, disableObjectDetector.ToString());
@@ -40,7 +40,7 @@ public class SystemConfigSettings
 
         configService.Set(ConfigSettings.EnablePoliciesAndRoles, enableAuthAndRoles.ToString());
         configService.Set(ConfigSettings.EnableImageEditing, enableImageEditing.ToString());
-        configService.Set( ConfigSettings.EnableBackgroundThumbs, enableBackgroundThumbs.ToString() );
+        configService.Set(ConfigSettings.EnableBackgroundThumbs, enableBackgroundThumbs.ToString());
         configService.Set(ConfigSettings.LogLevel, serverLogLevel.ToString());
 
         smtpSettings.Save(configService);
@@ -61,7 +61,7 @@ public class SystemConfigSettings
         wpSettings.Password = configService.Get(ConfigSettings.WordpressPassword);
 
         enableImageEditing = configService.GetBool(ConfigSettings.EnableImageEditing);
-        enableBackgroundThumbs = configService.GetBool( ConfigSettings.EnableBackgroundThumbs );
+        enableBackgroundThumbs = configService.GetBool(ConfigSettings.EnableBackgroundThumbs);
         enableAuthAndRoles = configService.GetBool(ConfigSettings.EnablePoliciesAndRoles,
             ConfigSettings.DefaultEnableRolesAndAuth);
         forceLogin = configService.GetBool(ConfigSettings.ForceLogin);

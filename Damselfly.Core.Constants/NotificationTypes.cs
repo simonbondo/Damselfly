@@ -1,4 +1,4 @@
-﻿namespace Damselfly.Core.Constants;
+namespace Damselfly.Core.Constants;
 
 /// <summary>
 ///     Types of Server-to-Client notifications

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -73,7 +73,7 @@ public class Image
     public string ThumbUrl(ThumbSize size)
     {
         var nocacheDate = this.MetaData?.ThumbLastUpdated;
-        
+
         return $"/thumb/{size}/{ImageId}?nocache={nocacheDate:yyyyMMddHHmmss}";
     }
 

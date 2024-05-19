@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 
 namespace Damselfly.Shared.Utils;
 
@@ -24,10 +24,10 @@ public struct Stopwatch
 
     private void UpdateStats(string statName, long time)
     {
-        lock ( stats )
+        lock (stats)
         {
             Totals total;
-            if ( !stats.TryGetValue(statName, out total) )
+            if (!stats.TryGetValue(statName, out total))
             {
                 total = new Totals { count = 1, totalTime = time, maxTime = time, name = statName };
             }
@@ -35,7 +35,7 @@ public struct Stopwatch
             {
                 total.count++;
                 total.totalTime += time;
-                if ( total.maxTime < time )
+                if (total.maxTime < time)
                     total.maxTime = time;
             }
 
@@ -89,12 +89,12 @@ public struct Stopwatch
     {
         try
         {
-            if ( stats.Any() )
+            if (stats.Any())
             {
                 logfunc("Performance Summary:");
                 var titleLength = stats.Keys.Max(x => x.Length);
 
-                foreach ( var kvp in stats.OrderBy(x => x.Key) )
+                foreach (var kvp in stats.OrderBy(x => x.Key))
                 {
                     var lineItem = kvp.Key + ":";
                     logfunc(
@@ -102,7 +102,7 @@ public struct Stopwatch
                 }
             }
         }
-        catch ( Exception )
+        catch (Exception)
         {
             logfunc("Unable to write stopwatch totals.");
         }

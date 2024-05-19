@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.Constants;
+using Damselfly.Core.Constants;
 using Damselfly.Core.DbModels.Models.APIModels;
 using Damselfly.Core.Models;
 using Damselfly.Core.ScopedServices.ClientServices;
@@ -34,7 +34,8 @@ public class ClientBasketService : IUserBasketService, IBasketService
 
     public Basket CurrentBasket { get; private set; }
 
-    public ICollection<Image> BasketImages {
+    public ICollection<Image> BasketImages
+    {
         get
         {
             if (CurrentBasket != null)
@@ -43,7 +44,7 @@ public class ClientBasketService : IUserBasketService, IBasketService
             return new List<Image>();
         }
     }
-    
+
     public async Task Clear(int basketId)
     {
         await httpClient.CustomPostAsync($"/api/basket/clear/{basketId}");
@@ -70,7 +71,7 @@ public class ClientBasketService : IUserBasketService, IBasketService
 
             return newBasket;
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             _logger.LogError($"Attempted to switch to unknown basket ID {basketId}: {ex}");
             throw;
@@ -81,12 +82,12 @@ public class ClientBasketService : IUserBasketService, IBasketService
     {
         Basket? basket;
 
-        if ( userId is null )
+        if (userId is null)
             basket = await httpClient.CustomGetFromJsonAsync<Basket>("/api/basketdefault");
         else
             basket = await httpClient.CustomGetFromJsonAsync<Basket>($"/api/basketdefault/{userId}");
 
-        if( basket != null )
+        if (basket != null)
             await SetCurrentBasket(basket);
 
         return basket;
@@ -159,11 +160,12 @@ public class ClientBasketService : IUserBasketService, IBasketService
 
     public bool IsInCurrentBasket(Image image)
     {
-        try {
+        try
+        {
             // TODO: Figure out how there can be an image in this collection that's null
             return BasketImages.Any(x => x is not null && x.ImageId == image.ImageId);
         }
-        catch( Exception ex )
+        catch (Exception ex)
         {
             _logger.LogError($"Exception checking basket state for {image.ImageId}: {ex}");
             return false;
@@ -177,11 +179,11 @@ public class ClientBasketService : IUserBasketService, IBasketService
 
     private async Task HandleServerBasketChange(BasketChanged change)
     {
-        if ( CurrentBasket.BasketId == change.BasketId )
+        if (CurrentBasket.BasketId == change.BasketId)
         {
             Basket newBasket;
 
-            if ( change.ChangeType == BasketChangeType.BasketDeleted )
+            if (change.ChangeType == BasketChangeType.BasketDeleted)
                 newBasket = await GetDefaultBasket(_userService.UserId);
             else
                 newBasket = await GetBasketById(change.BasketId);
@@ -200,13 +202,13 @@ public class ClientBasketService : IUserBasketService, IBasketService
             .Select(x => x.ImageId)
             .ToList();
 
-        if ( imagesToLoad.Any() )
+        if (imagesToLoad.Any())
         {
             // Load the basket images into the cache...
             var images = _imageCache.GetCachedImages(imagesToLoad);
 
             // ...and Attach them to the basket entries
-            foreach ( var be in CurrentBasket.BasketEntries ) be.Image = await _imageCache.GetCachedImage(be.ImageId);
+            foreach (var be in CurrentBasket.BasketEntries) be.Image = await _imageCache.GetCachedImage(be.ImageId);
         }
 
         var change = new BasketChanged { ChangeType = BasketChangeType.BasketChanged, BasketId = newBasket.BasketId };

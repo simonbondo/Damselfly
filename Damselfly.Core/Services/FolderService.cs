@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,7 +21,7 @@ public class FolderService : IFolderService
 {
     private readonly ServerNotifierService _notifier;
     private readonly IServiceScopeFactory _scopeFactory;
-    private readonly EventConflator conflator = new( 10 * 1000 );
+    private readonly EventConflator conflator = new(10 * 1000);
     private List<Folder> allFolders = new();
 
     public FolderService(IndexingService _indexingService, IServiceScopeFactory scopeFactory,
@@ -85,7 +85,7 @@ public class FolderService : IFolderService
                 .Select(x => CreateFolderWrapper(x, x.Images.Count, x.Images.Max(i => i.SortDate)))
                 .ToListAsync();
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"Error loading folders: {ex.Message}");
         }
@@ -107,7 +107,7 @@ public class FolderService : IFolderService
     {
         var item = folder.MetaData;
 
-        if ( item == null )
+        if (item == null)
         {
             item = new FolderMetadata
             {
@@ -123,12 +123,12 @@ public class FolderService : IFolderService
 
         var parent = folder.Parent;
 
-        while ( parent != null )
+        while (parent != null)
         {
-            if ( parent.MetaData == null )
+            if (parent.MetaData == null)
                 parent.MetaData = new FolderMetadata { DisplayName = GetFolderDisplayName(parent) };
 
-            if ( parent.MetaData.MaxImageDate == null || parent.MetaData.MaxImageDate < maxDate )
+            if (parent.MetaData.MaxImageDate == null || parent.MetaData.MaxImageDate < maxDate)
                 parent.MetaData.MaxImageDate = maxDate;
 
             parent.MetaData.ChildImageCount += imageCount;
@@ -149,7 +149,7 @@ public class FolderService : IFolderService
     {
         var display = folder.Name;
 
-        while ( display.StartsWith('/') || display.StartsWith('\\') )
+        while (display.StartsWith('/') || display.StartsWith('\\'))
             display = display.Substring(1);
 
         return display;

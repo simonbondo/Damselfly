@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.ScopedServices.Interfaces;
+using Damselfly.Core.ScopedServices.Interfaces;
 using Damselfly.Core.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -44,12 +44,12 @@ public class UserService : IUserService, IDisposable
     /// <returns></returns>
     public async Task<bool> PolicyApplies(string policy)
     {
-        if ( !RolesEnabled )
+        if (!RolesEnabled)
             return true;
 
         var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
 
-        if ( _authService != null )
+        if (_authService != null)
         {
             var result = await _authService.AuthorizeAsync(authState.User, policy);
 
@@ -75,7 +75,7 @@ public class UserService : IUserService, IDisposable
         var authState = await authStateTask;
         UserId = authState.GetUserIdFromPrincipal();
 
-        if ( UserId is not null && UserId > 0 )
+        if (UserId is not null && UserId > 0)
             Logging.Log($"User changed to {UserId}");
         else
             Logging.Log("User state changed to logged out");

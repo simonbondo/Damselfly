@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.Interfaces;
+using Damselfly.Core.Interfaces;
 using Damselfly.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 

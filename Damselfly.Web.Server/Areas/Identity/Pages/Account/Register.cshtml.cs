@@ -54,7 +54,7 @@ public class RegisterModel : PageModel
     /// <returns></returns>
     public async Task<IActionResult> OnPostAsync(string? returnUrl = null)
     {
-        if ( !_userService.AllowPublicRegistration )
+        if (!_userService.AllowPublicRegistration)
         {
             ModelState.AddModelError(string.Empty,
                 "Public Registration is disabled. Please contact the owner of this Damselfly instance to have an account created");
@@ -63,13 +63,13 @@ public class RegisterModel : PageModel
 
         returnUrl ??= Url.Content("~/");
         ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-        if ( ModelState.IsValid )
+        if (ModelState.IsValid)
         {
             var user = new AppIdentityUser { UserName = Input.Email, Email = Input.Email };
 
             var result = await _userService.CreateNewUser(user.UserName, user.Email, Input.Password);
 
-            if ( result.Succeeded )
+            if (result.Succeeded)
             {
                 var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
@@ -83,7 +83,7 @@ public class RegisterModel : PageModel
                 await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                     $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
-                if ( _userManager.Options.SignIn.RequireConfirmedAccount )
+                if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl });
 
                 await _userService.AddUserToDefaultRoles(user);
@@ -92,7 +92,7 @@ public class RegisterModel : PageModel
                 return LocalRedirect(returnUrl);
             }
 
-            foreach ( var error in result.Errors ) 
+            foreach (var error in result.Errors)
                 ModelState.AddModelError(string.Empty, error);
         }
 

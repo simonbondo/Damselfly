@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.Constants;
+using Damselfly.Core.Constants;
 using Damselfly.Core.DbModels.Models;
 using Damselfly.Core.DbModels.Models.APIModels;
 using Damselfly.Core.ScopedServices.ClientServices;
@@ -38,7 +38,7 @@ public class ClientStatusService : IUserStatusService
 
     private void NotifyStatusChanged(string newStatus)
     {
-        if ( StatusText != newStatus )
+        if (StatusText != newStatus)
         {
             _logger.LogInformation($"Status: {newStatus}");
             StatusText = newStatus;
@@ -55,7 +55,7 @@ public class ClientStatusService : IUserStatusService
     private void ShowServerStatus(StatusUpdate newStatus)
     {
         // If it's -1, or it's meant for us, use it.
-        if ( !_userService.RolesEnabled || newStatus.UserID is null || newStatus.UserID == CurrentUserId )
+        if (!_userService.RolesEnabled || newStatus.UserID is null || newStatus.UserID == CurrentUserId)
             NotifyStatusChanged(newStatus.NewStatus);
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using Damselfly.Core.DbModels.Authentication;
 using Damselfly.Core.ScopedServices.Interfaces;
 using Microsoft.AspNetCore.Authentication;
@@ -39,7 +39,7 @@ public class LoginModel : PageModel
 
     public async Task OnGetAsync(string? returnUrl = null)
     {
-        if ( !string.IsNullOrEmpty(ErrorMessage) ) ModelState.AddModelError(string.Empty, ErrorMessage);
+        if (!string.IsNullOrEmpty(ErrorMessage)) ModelState.AddModelError(string.Empty, ErrorMessage);
 
         returnUrl ??= Url.Content("~/");
 
@@ -57,24 +57,24 @@ public class LoginModel : PageModel
 
         ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
-        if ( ModelState.IsValid )
+        if (ModelState.IsValid)
         {
             // Use the actual email here
             var user = await _userManager.FindByEmailAsync(Input.Email);
 
-            if ( user != null )
+            if (user != null)
             {
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 var result =
                     await _signInManager.PasswordSignInAsync(user.UserName, Input.Password, Input.RememberMe, false);
-                if ( result.Succeeded )
+                if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
                     return LocalRedirect(returnUrl);
                 }
 
-                if ( result.IsLockedOut )
+                if (result.IsLockedOut)
                 {
                     _logger.LogWarning("User account locked out.");
                     return RedirectToPage("./Lockout");
@@ -91,7 +91,7 @@ public class LoginModel : PageModel
 
     public class InputModel
     {
-        [Required] [EmailAddress] public string Email { get; set; }
+        [Required][EmailAddress] public string Email { get; set; }
 
         [Required]
         [DataType(DataType.Password)]

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -24,10 +24,10 @@ public class Folder
     [JsonIgnore] // This JsonIgnore prevents circular references when serializing the Image entity
     public virtual List<Image> Images { get; } = new();
 
-    [NotMapped] 
+    [NotMapped]
     public string Name => System.IO.Path.GetFileName(Path);
 
-    [NotMapped] 
+    [NotMapped]
     public FolderMetadata MetaData { get; set; }
 
     [NotMapped]
@@ -37,7 +37,7 @@ public class Folder
         {
             var thisId = new[] { this };
 
-            if ( Children != null )
+            if (Children != null)
                 return Children.SelectMany(x => x.Subfolders).Concat(thisId);
 
             return thisId;
@@ -49,14 +49,14 @@ public class Folder
     {
         get
         {
-            if ( Parent != null )
+            if (Parent != null)
                 return Parent.ParentFolders.Concat(new[] { Parent });
 
             return Enumerable.Empty<Folder>();
         }
     }
 
-    [NotMapped] 
+    [NotMapped]
     public bool HasSubFolders => Children != null && Children.Any();
 
     public override string ToString()

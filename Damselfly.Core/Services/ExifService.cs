@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -118,11 +118,11 @@ public class ExifService : IProcessJobFactory, ITagService
 
         var keywordOps = new List<ExifOperation>();
 
-        if ( addTags != null )
+        if (addTags != null)
         {
             var tagsToAdd = addTags.Where(x => !string.IsNullOrEmpty(x.Trim())).ToList();
 
-            foreach ( var imageId in imageIds )
+            foreach (var imageId in imageIds)
                 keywordOps.AddRange(tagsToAdd.Select(keyword => new ExifOperation
                 {
                     ImageId = imageId,
@@ -133,15 +133,15 @@ public class ExifService : IProcessJobFactory, ITagService
                     UserId = userId
                 }));
 
-            var tagsAdded = string.Join( ',', tagsToAdd );
+            var tagsAdded = string.Join(',', tagsToAdd);
             changeDesc += $"added: {tagsAdded}";
         }
 
-        if ( removeTags != null )
+        if (removeTags != null)
         {
             var tagsToRemove = removeTags.Where(x => !string.IsNullOrEmpty(x.Trim())).ToList();
 
-            foreach ( var imageId in imageIds )
+            foreach (var imageId in imageIds)
                 keywordOps.AddRange(tagsToRemove.Select(keyword =>
                     new ExifOperation
                     {
@@ -152,7 +152,7 @@ public class ExifService : IProcessJobFactory, ITagService
                         TimeStamp = timestamp
                     }));
 
-            if ( !string.IsNullOrEmpty(changeDesc) )
+            if (!string.IsNullOrEmpty(changeDesc))
                 changeDesc += ", ";
             changeDesc += $"removed: {string.Join(',', tagsToRemove)}";
         }
@@ -166,12 +166,12 @@ public class ExifService : IProcessJobFactory, ITagService
 
             _statusService.UpdateStatus($"Saved tags ({changeDesc}) for {imageIds.Count()} images.");
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"Exception inserting keyword operations: {ex.Message}");
         }
 
-        if ( userId != -1 )
+        if (userId != -1)
             NotifyUserTagsAdded(addTags);
 
         // Trigger the work service to look for new jobs
@@ -218,7 +218,7 @@ public class ExifService : IProcessJobFactory, ITagService
 
             _statusService.UpdateStatus($"Saved {exifType} ({changeDesc}) for {imageIds.Count()} images.");
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"Exception inserting {exifType} operations: {ex.Message}");
         }
@@ -268,9 +268,9 @@ public class ExifService : IProcessJobFactory, ITagService
     private void GetExifToolVersion()
     {
         var process = new ProcessStarter();
-        if ( process.StartProcess("exiftool", "-ver") ) ExifToolVer = $"v{process.OutputText}";
+        if (process.StartProcess("exiftool", "-ver")) ExifToolVer = $"v{process.OutputText}";
 
-        if ( string.IsNullOrEmpty(ExifToolVer) ) ExifToolVer = "Unavailable - ExifTool Not found";
+        if (string.IsNullOrEmpty(ExifToolVer)) ExifToolVer = "Unavailable - ExifTool Not found";
 
         Logging.Log($"ExifTool Version: {ExifToolVer}");
     }
@@ -325,9 +325,9 @@ public class ExifService : IProcessJobFactory, ITagService
 
         var ops = new List<ExifOperation>();
 
-        if ( faces != null )
+        if (faces != null)
         {
-            foreach ( var image in images )
+            foreach (var image in images)
                 ops.AddRange(faces.Select(face => new ExifOperation
                 {
                     ImageId = image.ImageId,
@@ -348,7 +348,7 @@ public class ExifService : IProcessJobFactory, ITagService
 
             _statusService.UpdateStatus($"Saved tags ({changeDesc}) for {images.Count()} images.");
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"Exception inserting keyword operations: {ex.Message}");
         }
@@ -374,20 +374,20 @@ public class ExifService : IProcessJobFactory, ITagService
         var args = string.Empty;
         var opsToProcess = new List<ExifOperation>();
 
-        foreach ( var op in exifOperations )
+        foreach (var op in exifOperations)
         {
             var operationText = op.Text.RemoveSmartQuotes();
 
             // We need to escape double-quotes.
             operationText = operationText.Replace("\"", "\\\"");
 
-            if ( string.IsNullOrEmpty(operationText) )
+            if (string.IsNullOrEmpty(operationText))
             {
                 Logging.LogWarning($"Exif Operation with empty text: {op.Image.FileName}.");
                 continue;
             }
 
-            if ( op.Type == ExifOperation.ExifType.Keyword )
+            if (op.Type == ExifOperation.ExifType.Keyword)
             {
                 // Weird but important: we *alwaya* add a -= for the keyword,
                 // whether we're removing or adding it. Removing is self-evident,
@@ -400,46 +400,46 @@ public class ExifService : IProcessJobFactory, ITagService
                 // See: https://stackoverflow.com/questions/67282388/adding-multiple-keywords-with-exiftool-but-only-if-theyre-not-already-present
                 args += $" -keywords-=\"{operationText}\" ";
 
-                if ( op.Operation == ExifOperation.OperationType.Remove )
+                if (op.Operation == ExifOperation.OperationType.Remove)
                 {
                     Logging.LogVerbose($" Removing keyword {operationText} from {op.Image.FileName}");
                     opsToProcess.Add(op);
                 }
-                else if ( op.Operation == ExifOperation.OperationType.Add )
+                else if (op.Operation == ExifOperation.OperationType.Add)
                 {
                     Logging.LogVerbose($" Adding keyword '{operationText}' to {op.Image.FileName}");
                     args += $" -keywords+=\"{operationText}\" ";
                     opsToProcess.Add(op);
                 }
             }
-            else if ( op.Type == ExifOperation.ExifType.Caption )
+            else if (op.Type == ExifOperation.ExifType.Caption)
             {
                 args += $" -iptc:Caption-Abstract=\"{op.Text}\"";
                 opsToProcess.Add(op);
             }
-            else if ( op.Type == ExifOperation.ExifType.Description )
+            else if (op.Type == ExifOperation.ExifType.Description)
             {
                 args += $" -Exif:ImageDescription=\"{op.Text}\"";
                 opsToProcess.Add(op);
             }
-            else if ( op.Type == ExifOperation.ExifType.Copyright )
+            else if (op.Type == ExifOperation.ExifType.Copyright)
             {
                 args += $" -Copyright=\"{op.Text}\"";
                 args += $" -iptc:CopyrightNotice=\"{op.Text}\"";
                 opsToProcess.Add(op);
             }
-            else if ( op.Type == ExifOperation.ExifType.Rating )
+            else if (op.Type == ExifOperation.ExifType.Rating)
             {
                 args += $" -exif:Rating=\"{op.Text}\"";
                 opsToProcess.Add(op);
             }
-            else if( op.Type == ExifOperation.ExifType.Rotate )
+            else if (op.Type == ExifOperation.ExifType.Rotate)
             {
-                int rotationDegrees = Convert.ToUInt16( op.Text );
+                int rotationDegrees = Convert.ToUInt16(op.Text);
                 args += $" -orientation=\"Rotate {rotationDegrees} CW\"";
-                opsToProcess.Add( op );
+                opsToProcess.Add(op);
             }
-            else if ( op.Type == ExifOperation.ExifType.Face )
+            else if (op.Type == ExifOperation.ExifType.Face)
             {
                 var imageObject = JsonSerializer.Deserialize<ImageObject>(op.Text);
 
@@ -448,7 +448,7 @@ public class ExifService : IProcessJobFactory, ITagService
                 // -xmp-mwg-rs:RegionAreaX=0.319270833 -xmp-mwg-rs:RegionAreaY=0.21015625 -xmp-mwg-rs:RegionAreaW=0.165104167 -xmp-mwg-rs:RegionAreaH=0.30390625
                 // -xmp-mwg-rs:RegionName=John -xmp-mwg-rs:RegionRotation=0 -xmp-mwg-rs:RegionType="Face" myfile.xmp
 
-                if ( Debugger.IsAttached )
+                if (Debugger.IsAttached)
                 {
                     // TODO: How to add multiple faces?
                     args += " -xmp-mwg-rs:RegionType=\"Face\"";
@@ -459,7 +459,7 @@ public class ExifService : IProcessJobFactory, ITagService
                     args += " -xmp-mwg-rs:RegionAreaW=0.165104167 -xmp-mwg-rs:RegionAreaH=0.30390625";
                     args += " -xmp-mwg-rs:RegionRotation=0";
 
-                    if ( imageObject.Person != null ) args += $" -xmp-mwg-rs:RegionName={imageObject.Person.Name}";
+                    if (imageObject.Person != null) args += $" -xmp-mwg-rs:RegionName={imageObject.Person.Name}";
 
                     opsToProcess.Add(op);
                 }
@@ -469,7 +469,7 @@ public class ExifService : IProcessJobFactory, ITagService
         // Assume they've all failed unless we succeed below.
         exifOperations.ForEach(x => x.State = ExifOperation.FileWriteState.Failed);
 
-        if ( opsToProcess.Any() )
+        if (opsToProcess.Any())
         {
             // Note: we could do this to preserve the last-mod-time:
             //   args += " -P -overwrite_original_in_place";
@@ -494,7 +494,7 @@ public class ExifService : IProcessJobFactory, ITagService
             success = process.StartProcess("exiftool", args, env);
             watch.Stop();
 
-            if ( success )
+            if (success)
             {
                 opsToProcess.ForEach(x => x.State = ExifOperation.FileWriteState.Written);
 
@@ -539,14 +539,14 @@ public class ExifService : IProcessJobFactory, ITagService
         var newExtension = path.Extension + "_exiftool_tmp";
         var tempPath = new FileInfo(Path.ChangeExtension(imagePath, newExtension));
 
-        if ( !path.Exists && tempPath.Exists )
+        if (!path.Exists && tempPath.Exists)
         {
             Logging.Log($"Moving {tempPath.FullName} to {path.Name}...");
             try
             {
                 File.Move(tempPath.FullName, path.FullName);
             }
-            catch ( Exception ex )
+            catch (Exception ex)
             {
                 Logging.LogWarning($"Unable to move file: {ex.Message}");
             }
@@ -573,7 +573,7 @@ public class ExifService : IProcessJobFactory, ITagService
 
             Logging.LogVerbose($"Cleaned up {cleanedUp} completed Keyword Operations.");
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"Exception whilst cleaning up keyword operations: {ex.Message}");
         }
@@ -607,7 +607,7 @@ public class ExifService : IProcessJobFactory, ITagService
         var imageKeywords = opsToProcess.Where(x => x.Type == ExifOperation.ExifType.Keyword)
             .GroupBy(x => x.Image.ImageId);
 
-        foreach ( var imageOpList in imageKeywords )
+        foreach (var imageOpList in imageKeywords)
         {
             var theImage = imageOpList.Key;
             var keywordOps = imageOpList.GroupBy(x => x.Text);
@@ -618,13 +618,13 @@ public class ExifService : IProcessJobFactory, ITagService
             // conflate with ops for tag 'cat'
             var exifOpDict = new Dictionary<string, ExifOperation>();
 
-            foreach ( var op in keywordOps )
+            foreach (var op in keywordOps)
             {
                 var orderedOps = op.OrderBy(x => x.TimeStamp).ToList();
 
-                foreach ( var imageKeywordOp in orderedOps )
+                foreach (var imageKeywordOp in orderedOps)
                 {
-                    if ( exifOpDict.TryGetValue(imageKeywordOp.Text, out var existing) )
+                    if (exifOpDict.TryGetValue(imageKeywordOp.Text, out var existing))
                         // Update the state before it's replaced in the dict.
                         discardedOps.Add(existing);
 
@@ -646,24 +646,24 @@ public class ExifService : IProcessJobFactory, ITagService
             .ToList();
 
         // Now collect up the face updates. We don't discard any of these
-        foreach ( var pair in imageFaces )
-            if ( result.ContainsKey(pair.ImageId) )
+        foreach (var pair in imageFaces)
+            if (result.ContainsKey(pair.ImageId))
                 result[pair.ImageId].AddRange(pair.Ops);
             else
                 // Add the most recent to the result
                 result[pair.ImageId] = pair.Ops;
 
-        if ( opsToProcess.Any() )
+        if (opsToProcess.Any())
         {
             // These items we just want the most recent in the list
             ConflateSingleObjects(opsToProcess, result, discardedOps, ExifOperation.ExifType.Caption);
             ConflateSingleObjects(opsToProcess, result, discardedOps, ExifOperation.ExifType.Description);
             ConflateSingleObjects(opsToProcess, result, discardedOps, ExifOperation.ExifType.Copyright);
             ConflateSingleObjects(opsToProcess, result, discardedOps, ExifOperation.ExifType.Rating);
-            ConflateRotation( opsToProcess, result, discardedOps );
+            ConflateRotation(opsToProcess, result, discardedOps);
         }
 
-        if ( discardedOps.Any() )
+        if (discardedOps.Any())
         {
             using var scope = _scopeFactory.CreateScope();
             using var db = scope.ServiceProvider.GetService<ImageContext>();
@@ -686,35 +686,38 @@ public class ExifService : IProcessJobFactory, ITagService
     /// </summary>
     /// <param name="opsToProcess"></param>
     /// <param name="result"></param>
-    private void ConflateRotation(List<ExifOperation> opsToProcess, Dictionary<int, List<ExifOperation>> result, List<ExifOperation> discardedOps )
+    private void ConflateRotation(List<ExifOperation> opsToProcess, Dictionary<int, List<ExifOperation>> result, List<ExifOperation> discardedOps)
     {
-        var rotateOps = opsToProcess.Where( x => x.Type == ExifOperation.ExifType.Rotate );
+        var rotateOps = opsToProcess.Where(x => x.Type == ExifOperation.ExifType.Rotate);
 
-        var opsByImage = rotateOps.GroupBy( x => x.Image );
+        var opsByImage = rotateOps.GroupBy(x => x.Image);
 
-        var netRotations = opsByImage.Select( x => new { 
-                Image = x.Key, 
-                Rotation = x.Sum( op => Convert.ToInt16( op.Text ) ) % 360 } );
-
-        foreach( var netRotate in netRotations )
+        var netRotations = opsByImage.Select(x => new
         {
-            if( !result.TryGetValue( netRotate.Image.ImageId, out var existingOps ) )
+            Image = x.Key,
+            Rotation = x.Sum(op => Convert.ToInt16(op.Text)) % 360
+        });
+
+        foreach (var netRotate in netRotations)
+        {
+            if (!result.TryGetValue(netRotate.Image.ImageId, out var existingOps))
             {
                 existingOps = new List<ExifOperation>();
                 result[netRotate.Image.ImageId] = existingOps;
             }
 
             // Save a new Operation, representing the conflated net rotation
-            existingOps.Add( new ExifOperation { 
-                    ImageId = netRotate.Image.ImageId,
-                    Operation = OperationType.Add,
-                    Type = ExifType.Rotate,
-                    Text = netRotate.Rotation.ToString(),
-            } ); 
+            existingOps.Add(new ExifOperation
+            {
+                ImageId = netRotate.Image.ImageId,
+                Operation = OperationType.Add,
+                Type = ExifType.Rotate,
+                Text = netRotate.Rotation.ToString(),
+            });
         }
 
         // We always discard, since we created a new op to represent the net rotation
-        discardedOps.AddRange( rotateOps );
+        discardedOps.AddRange(rotateOps);
     }
 
     private static void ConflateSingleObjects(List<ExifOperation> opsToProcess,
@@ -734,10 +737,10 @@ public class ExifService : IProcessJobFactory, ITagService
             .ToList();
 
         // Now collect up the caption updates, and mark the rest as discarded.
-        foreach ( var pair in imageCaptions )
+        foreach (var pair in imageCaptions)
         {
             // Add the most recent to the result if it's in the dict, otherwise create a new entry
-            if ( result.ContainsKey(pair.Image.ImageId) )
+            if (result.ContainsKey(pair.Image.ImageId))
                 result[pair.Image.ImageId].AddRange(pair.Newest);
             else
                 result[pair.Image.ImageId] = pair.Newest;
@@ -762,7 +765,7 @@ public class ExifService : IProcessJobFactory, ITagService
             .OrderBy(x => x.Keyword)
             .ToList());
 
-        if ( !faves.SequenceEqual(faveTags) )
+        if (!faves.SequenceEqual(faveTags))
         {
             faveTags.Clear();
             faveTags.AddRange(faves);

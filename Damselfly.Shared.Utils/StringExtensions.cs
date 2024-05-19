@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using System.Text.RegularExpressions;
 using Humanizer;
 
@@ -13,7 +13,7 @@ public static class StringExtensions
     /// <returns></returns>
     public static string SafeTrim(this string source)
     {
-        if ( source == null )
+        if (source == null)
             return null;
 
         return source.Trim();
@@ -91,7 +91,7 @@ public static class StringExtensions
     {
         var result = new StringBuilder(bytes.Length * 2);
 
-        for ( var i = 0; i < bytes.Length; i++ )
+        for (var i = 0; i < bytes.Length; i++)
             result.Append(bytes[i].ToString(upperCase ? "X2" : "x2"));
 
         return result.ToString();
@@ -119,7 +119,7 @@ public static class StringExtensions
         }
         // If we timeout when replacing invalid characters,
         // we should return Empty.
-        catch ( RegexMatchTimeoutException )
+        catch (RegexMatchTimeoutException)
         {
             return string.Empty;
         }

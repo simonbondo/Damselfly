@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -29,8 +29,8 @@ public class ProcessStarter
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.CreateNoWindow = true;
 
-        if ( envVars != null )
-            foreach ( var kvp in envVars )
+        if (envVars != null)
+            foreach (var kvp in envVars)
                 process.StartInfo.EnvironmentVariables[kvp.Key] = kvp.Value;
 
         try
@@ -41,7 +41,7 @@ public class ProcessStarter
 
             var success = process.Start();
 
-            if ( success )
+            if (success)
             {
                 OutputText = process.StandardOutput.ReadToEnd();
 
@@ -49,14 +49,14 @@ public class ProcessStarter
 
                 Logging.LogTrace("  Process completed exit code {0}", process.ExitCode);
 
-                if ( !string.IsNullOrEmpty(OutputText) )
+                if (!string.IsNullOrEmpty(OutputText))
                     Logging.LogTrace("  Output: {0}", OutputText);
 
-                if ( process.ExitCode == 0 )
+                if (process.ExitCode == 0)
                     return true;
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.Log("ERROR: Unable to start process: {0} {1}", exe, ex.Message);
         }

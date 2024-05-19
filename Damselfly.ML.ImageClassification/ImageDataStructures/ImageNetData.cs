@@ -1,4 +1,4 @@
-﻿using Microsoft.ML.Data;
+using Microsoft.ML.Data;
 
 namespace ImageClassification.ImageDataStructures;
 

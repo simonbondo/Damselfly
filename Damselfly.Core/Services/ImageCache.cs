@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -89,15 +89,15 @@ public class ImageCache : IImageCacheService
                 .ToList();
 
             // Now load and cache them
-            if ( needLoad.Any() )
+            if (needLoad.Any())
                 await EnrichAndCache(needLoad);
 
             // Now, re-enumerate the list, but in-order. Note that everything
             // should be in the cache this time
-            foreach ( var imgId in imgIds )
+            foreach (var imgId in imgIds)
             {
                 Image image;
-                if ( !_memoryCache.TryGetValue(imgId, out image) )
+                if (!_memoryCache.TryGetValue(imgId, out image))
                 {
                     // Somehow an item which we just supposedly cached, is no
                     // longer in the cache. This is very bad indeed.
@@ -108,7 +108,7 @@ public class ImageCache : IImageCacheService
                 result.Add(image);
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"Exception during caching/enrichment: {ex}");
         }
@@ -140,7 +140,7 @@ public class ImageCache : IImageCacheService
 
             Logging.Log($"Image Cache primed with {warmupIds.Count} images.");
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"Unexpected error warming up cache: {ex.Message}");
         }
@@ -149,8 +149,8 @@ public class ImageCache : IImageCacheService
     public async Task<Image> GetCachedImage(Image img)
     {
         Image cachedImage;
-        
-        if ( !_memoryCache.TryGetValue(img.ImageId, out cachedImage) )
+
+        if (!_memoryCache.TryGetValue(img.ImageId, out cachedImage))
         {
             Logging.LogVerbose($"Cache miss for image {img.ImageId}");
             cachedImage = await EnrichAndCache(img);
@@ -182,7 +182,7 @@ public class ImageCache : IImageCacheService
 
     private async Task<List<Image>> EnrichAndCache(List<int> imageIds)
     {
-        if ( !imageIds.Any() )
+        if (!imageIds.Any())
             return new List<Image>();
 
         var tagwatch = new Stopwatch("EnrichCache");
@@ -201,7 +201,7 @@ public class ImageCache : IImageCacheService
             .Where(x => imageIds.Contains(x.ImageId))
             .Include(x => x.Folder)
             .Include(x => x.MetaData)
-            .Include(x=> x.Transforms)
+            .Include(x => x.Transforms)
             .Include(x => x.Hash)
             .Include(x => x.MetaData.Camera)
             .Include(x => x.MetaData.Lens)
@@ -214,11 +214,11 @@ public class ImageCache : IImageCacheService
             .ThenInclude(x => x.Person)
             .ToListAsync();
 
-        foreach ( var enrichedImage in images ) _memoryCache.Set(enrichedImage.ImageId, enrichedImage, _cacheOptions);
+        foreach (var enrichedImage in images) _memoryCache.Set(enrichedImage.ImageId, enrichedImage, _cacheOptions);
 
         tagwatch.Stop();
 
-        if ( images.Count() > 1 )
+        if (images.Count() > 1)
             Logging.Log($"Enriched and cached {images.Count()} in {tagwatch.ElapsedTime}ms");
 
         return images;
@@ -228,7 +228,7 @@ public class ImageCache : IImageCacheService
     {
         var enrichedImage = await GetImage(image);
 
-        if ( enrichedImage != null ) 
+        if (enrichedImage != null)
             _memoryCache.Set(enrichedImage.ImageId, enrichedImage, _cacheOptions);
 
         return enrichedImage;
@@ -252,48 +252,48 @@ public class ImageCache : IImageCacheService
             // TODO: Use AsNoTracking here, for speed?
 
             // We're either passed an existing image, or an image id.
-            if ( image != null )
+            if (image != null)
             {
                 loadtype = "object";
                 var entry = db.Attach(image);
 
-                if ( !entry.Reference(x => x.Folder).IsLoaded )
+                if (!entry.Reference(x => x.Folder).IsLoaded)
                     await entry.Reference(x => x.Folder)
                         .LoadAsync();
 
-                if ( !entry.Reference(x => x.MetaData).IsLoaded )
+                if (!entry.Reference(x => x.MetaData).IsLoaded)
                     await entry.Reference(x => x.MetaData)
                         .Query()
                         .Include(x => x.Camera)
                         .Include(x => x.Lens)
                         .LoadAsync();
 
-                if( !entry.Reference( x => x.Transforms ).IsLoaded )
-                    await entry.Reference( x => x.Transforms )
+                if (!entry.Reference(x => x.Transforms).IsLoaded)
+                    await entry.Reference(x => x.Transforms)
                         .Query()
                         .LoadAsync();
 
-                if( !entry.Reference(x => x.Hash).IsLoaded )
+                if (!entry.Reference(x => x.Hash).IsLoaded)
                     await entry.Reference(x => x.Hash)
                         .LoadAsync();
 
-                if ( !entry.Collection(x => x.BasketEntries).IsLoaded )
+                if (!entry.Collection(x => x.BasketEntries).IsLoaded)
                     await entry.Collection(x => x.BasketEntries).LoadAsync();
             }
 
-            if ( image != null )
+            if (image != null)
             {
                 /// Because of this issue: https://github.com/dotnet/efcore/issues/19418
                 /// we have to explicitly load the tags, rather than using eager loading.
 
-                if ( !db.Entry(image).Collection(e => e.ImageTags).IsLoaded )
+                if (!db.Entry(image).Collection(e => e.ImageTags).IsLoaded)
                     // Now load the tags
                     await db.Entry(image).Collection(e => e.ImageTags)
                         .Query()
                         .Include(e => e.Tag)
                         .LoadAsync();
 
-                if ( !db.Entry(image).Collection(e => e.ImageObjects).IsLoaded )
+                if (!db.Entry(image).Collection(e => e.ImageObjects).IsLoaded)
                     await db.Entry(image).Collection(e => e.ImageObjects)
                         .Query()
                         .Include(x => x.Tag)
@@ -305,7 +305,7 @@ public class ImageCache : IImageCacheService
                 throw new ArgumentException("Logic error.");
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.Log($"Exception retrieving image: {ex.Message}");
         }

@@ -1,4 +1,4 @@
-﻿/// <summary>
+/// <summary>
 /// State helpers for the scrollview
 /// </summary>
 
@@ -18,7 +18,7 @@ public class ScrollView
     {
         var other = obj as ScrollView;
 
-        if ( other == null || other.ClientHeight != ClientHeight || other.ScrollTop != ScrollTop )
+        if (other == null || other.ClientHeight != ClientHeight || other.ScrollTop != ScrollTop)
             return false;
 
         return true;
@@ -40,7 +40,7 @@ public class ScrollViewResult
     {
         var other = obj as ScrollViewResult;
 
-        if ( other == null || other.Height != Height || other.SkipItems != SkipItems || other.TakeItems != TakeItems )
+        if (other == null || other.Height != Height || other.SkipItems != SkipItems || other.TakeItems != TakeItems)
             return false;
 
         return true;

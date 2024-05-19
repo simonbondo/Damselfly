@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +25,7 @@ public static class ThreadUtils
         var tasks = Enumerable.Range(0, degreeOfParallelism)
             .Select(async _ =>
             {
-                while ( queue.TryDequeue(out var item) ) await processor(item).ConfigureAwait(false);
+                while (queue.TryDequeue(out var item)) await processor(item).ConfigureAwait(false);
                 // await Task.Delay(100); // Don't thrash.
             });
 

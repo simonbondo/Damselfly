@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.Constants;
+using Damselfly.Core.Constants;
 using Damselfly.Core.DbModels;
 using Damselfly.Core.Models;
 using Damselfly.Core.ScopedServices.ClientServices;
@@ -44,7 +44,7 @@ public class ClientImageCacheService : IImageCacheService
     private void DumpCacheStats(string context)
     {
         var cacheStats = _memoryCache.GetCurrentStatistics();
-        if( cacheStats is not null )
+        if (cacheStats is not null)
             _logger.LogInformation($"CacheStats {context}: Entries: {cacheStats.CurrentEntryCount}, Hits: {cacheStats.TotalHits}, Misses: {cacheStats.TotalMisses})");
         else
             _logger.LogInformation($"CacheStats {context}: Not found");
@@ -71,15 +71,15 @@ public class ClientImageCacheService : IImageCacheService
             await PreCacheImageList(idsNotInCache);
 
             // This must be done in-order, otherwise we'll end up with a mess
-            foreach ( var imgId in imgIds )
+            foreach (var imgId in imgIds)
             {
                 var image = await LoadAndCacheImage(imgId);
 
-                if ( image != null )
+                if (image != null)
                     result.Add(image);
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             _logger.LogError($"Exception during caching enrichment: {ex}");
         }
@@ -101,7 +101,7 @@ public class ClientImageCacheService : IImageCacheService
     {
         _logger.LogTrace($"Evicting image {imageId} from client-side cache");
 
-        if ( int.TryParse(imageId, out var id) ) _memoryCache.Remove(id);
+        if (int.TryParse(imageId, out var id)) _memoryCache.Remove(id);
     }
 
     /// <summary>
@@ -116,7 +116,7 @@ public class ClientImageCacheService : IImageCacheService
     {
         const int chunkSize = DamselflyContants.PageSize;
 
-        if ( imgIds.Count() <= chunkSize )
+        if (imgIds.Count() <= chunkSize)
         {
             var watch = new Stopwatch("ClientGetImages");
             try
@@ -124,7 +124,7 @@ public class ClientImageCacheService : IImageCacheService
                 var images = await GetImages(imgIds);
                 images.ForEach(CacheImage);
             }
-            catch ( Exception ex )
+            catch (Exception ex)
             {
                 _logger.LogError($"PreCacheImageList failed: {ex.Message}");
             }
@@ -159,7 +159,7 @@ public class ClientImageCacheService : IImageCacheService
             var req = new ImageRequest { ImageIds = imgIds.ToList() };
             var response = await httpClient.CustomPostAsJsonAsync<ImageRequest, ImageResponse>("/api/images/batch", req);
 
-            if( response != null )
+            if (response != null)
                 return response.Images;
         }
 
@@ -177,12 +177,12 @@ public class ClientImageCacheService : IImageCacheService
         {
             image = await GetImage(imageId);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             _logger.LogWarning($"Exception loading image {imageId}: {ex}");
         }
 
-        if ( image != null )
+        if (image != null)
             CacheImage(image);
         else
             _logger.LogWarning($"No image was pre-loaded for ID: {imageId}.");

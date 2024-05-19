@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Damselfly.Core.Constants;
@@ -24,7 +24,7 @@ public class ServerNotifierService
     {
         var methodName = type.ToString();
 
-        if ( payloadMsg is null )
+        if (payloadMsg is null)
             payloadMsg = string.Empty;
 
         await _hubContext.Clients.All.SendAsync(methodName, payloadMsg);
@@ -32,7 +32,7 @@ public class ServerNotifierService
 
     public async Task NotifyClients<T>(NotificationType type, T payloadObject) where T : class
     {
-        if ( payloadObject is null )
+        if (payloadObject is null)
             throw new ArgumentException("Paylopad object cannot be null");
 
         var methodName = type.ToString();
@@ -43,7 +43,7 @@ public class ServerNotifierService
 
             await _hubContext.Clients.All.SendAsync(methodName, json);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             _logger.LogError($"Exception notifiying clients with method {methodName}: {ex}");
         }

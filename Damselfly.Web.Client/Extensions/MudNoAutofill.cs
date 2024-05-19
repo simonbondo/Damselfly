@@ -1,4 +1,4 @@
-﻿namespace Damselfly.Web.Components;
+namespace Damselfly.Web.Components;
 
 public static class MudNoAutofill
 {

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Damselfly.Core.Constants;
 using Damselfly.Core.DbModels.Models;
 using Damselfly.Core.ScopedServices.Interfaces;

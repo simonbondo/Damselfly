@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Damselfly.Core.Constants;
 using Damselfly.Core.DbModels.Models;
 using Damselfly.Core.ScopedServices.Interfaces;

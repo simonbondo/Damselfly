@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Damselfly.Core.Interfaces;
 
 namespace Damselfly.Core.Models;

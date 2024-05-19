@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.Constants;
+using Damselfly.Core.Constants;
 using Damselfly.Core.DbModels;
 using Damselfly.Core.Models;
 using Damselfly.Core.ScopedServices.ClientServices;
@@ -34,14 +34,14 @@ public class ClientThemeService : IThemeService, IDisposable
     {
         var uri = "/api/theme";
 
-        if ( !string.IsNullOrEmpty(name) )
+        if (!string.IsNullOrEmpty(name))
             uri = $"/api/theme/{name}";
 
         try
         {
             return await httpClient.CustomGetFromJsonAsync<ThemeConfig>(uri);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             _logger.LogError($"Error in GetTheme: {ex}");
             return await GetDefaultTheme();
@@ -54,7 +54,7 @@ public class ClientThemeService : IThemeService, IDisposable
         {
             return await httpClient.CustomGetFromJsonAsync<ThemeConfig>("/api/theme");
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             _logger.LogError($"Error in GetTheme: {ex.Message}");
             return null;
@@ -67,7 +67,7 @@ public class ClientThemeService : IThemeService, IDisposable
         {
             return await httpClient.CustomGetFromJsonAsync<List<ThemeConfig>>("/api/themes");
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             _logger.LogError($"Error in GetThemes: {ex.Message}");
             return null;
@@ -78,7 +78,7 @@ public class ClientThemeService : IThemeService, IDisposable
     {
         var themeConfig = await GetThemeConfig(themeName);
 
-        if ( themeConfig != null )
+        if (themeConfig != null)
             await ApplyTheme(themeConfig);
     }
 
@@ -92,7 +92,7 @@ public class ClientThemeService : IThemeService, IDisposable
     {
         var themeSetting = newSettings.FirstOrDefault(x => x.Name == ConfigSettings.Theme);
 
-        if ( themeSetting != null )
+        if (themeSetting != null)
             _ = ApplyTheme(themeSetting.Value);
     }
 

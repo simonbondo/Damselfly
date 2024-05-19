@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -92,15 +92,15 @@ public sealed class ReverseLineReader : IEnumerable<string>
         this.streamSource = streamSource;
         this.encoding = encoding;
         this.bufferSize = bufferSize;
-        if ( encoding.IsSingleByte )
+        if (encoding.IsSingleByte)
             // For a single byte encoding, every byte is the start (and end) of a character
             characterStartDetector = (pos, data) => true;
-        else if ( encoding is UnicodeEncoding )
+        else if (encoding is UnicodeEncoding)
             // For UTF-16, even-numbered positions are the start of a character.
             // TODO: This assumes no surrogate pairs. More work required
             // to handle that.
             characterStartDetector = (pos, data) => (pos & 1) == 0;
-        else if ( encoding is UTF8Encoding )
+        else if (encoding is UTF8Encoding)
             // For UTF-8, bytes with the top bit clear or the second bit set are the start of a character
             // See http://www.cl.cam.ac.uk/~mgk25/unicode.html
             characterStartDetector = (pos, data) => (data & 0x80) == 0 || (data & 0x40) != 0;
@@ -115,13 +115,13 @@ public sealed class ReverseLineReader : IEnumerable<string>
     public IEnumerator<string> GetEnumerator()
     {
         var stream = streamSource();
-        if ( !stream.CanSeek )
+        if (!stream.CanSeek)
         {
             stream.Dispose();
             throw new NotSupportedException("Unable to seek within stream");
         }
 
-        if ( !stream.CanRead )
+        if (!stream.CanRead)
         {
             stream.Dispose();
             throw new NotSupportedException("Unable to read within stream");
@@ -141,7 +141,7 @@ public sealed class ReverseLineReader : IEnumerable<string>
         {
             var position = stream.Length;
 
-            if ( encoding is UnicodeEncoding && (position & 1) != 0 )
+            if (encoding is UnicodeEncoding && (position & 1) != 0)
                 throw new InvalidDataException("UTF-16 encoding provided, but stream has odd length.");
 
             // Allow up to two bytes for data from the start of the previous
@@ -160,7 +160,7 @@ public sealed class ReverseLineReader : IEnumerable<string>
             // way up here!
             var swallowCarriageReturn = false;
 
-            while ( position > 0 )
+            while (position > 0)
             {
                 var bytesToRead = Math.Min(position > int.MaxValue ? bufferSize : (int)position, bufferSize);
 
@@ -169,7 +169,7 @@ public sealed class ReverseLineReader : IEnumerable<string>
                 StreamUtil.ReadExactly(stream, buffer, bytesToRead);
                 // If we haven't read a full buffer, but we had bytes left
                 // over from before, copy them to the end of the buffer
-                if ( leftOverData > 0 && bytesToRead != bufferSize )
+                if (leftOverData > 0 && bytesToRead != bufferSize)
                     // Buffer.BlockCopy doesn't document its behaviour with respect
                     // to overlapping data: we *might* just have read 7 bytes instead of
                     // 8, and have two bytes to copy...
@@ -178,14 +178,14 @@ public sealed class ReverseLineReader : IEnumerable<string>
                 bytesToRead += leftOverData;
 
                 var firstCharPosition = 0;
-                while ( !characterStartDetector(position + firstCharPosition, buffer[firstCharPosition]) )
+                while (!characterStartDetector(position + firstCharPosition, buffer[firstCharPosition]))
                 {
                     firstCharPosition++;
                     // Bad UTF-8 sequences could trigger this. For UTF-8 we should always
                     // see a valid character start in every 3 bytes, and if this is the start of the file
                     // so we've done a short read, we should have the character start
                     // somewhere in the usable buffer.
-                    if ( firstCharPosition == 3 || firstCharPosition == bytesToRead )
+                    if (firstCharPosition == 3 || firstCharPosition == bytesToRead)
                         throw new InvalidDataException("Invalid UTF-8 data");
                 }
 
@@ -195,13 +195,13 @@ public sealed class ReverseLineReader : IEnumerable<string>
                     charBuffer, 0);
                 var endExclusive = charsRead;
 
-                for ( var i = charsRead - 1; i >= 0; i-- )
+                for (var i = charsRead - 1; i >= 0; i--)
                 {
                     var lookingAt = charBuffer[i];
-                    if ( swallowCarriageReturn )
+                    if (swallowCarriageReturn)
                     {
                         swallowCarriageReturn = false;
-                        if ( lookingAt == '\r' )
+                        if (lookingAt == '\r')
                         {
                             endExclusive--;
                             continue;
@@ -209,14 +209,14 @@ public sealed class ReverseLineReader : IEnumerable<string>
                     }
 
                     // Anything non-line-breaking, just keep looking backwards
-                    if ( lookingAt != '\n' && lookingAt != '\r' ) continue;
+                    if (lookingAt != '\n' && lookingAt != '\r') continue;
                     // End of CRLF? Swallow the preceding CR
-                    if ( lookingAt == '\n' ) swallowCarriageReturn = true;
+                    if (lookingAt == '\n') swallowCarriageReturn = true;
                     var start = i + 1;
                     var bufferContents = new string(charBuffer, start, endExclusive - start);
                     endExclusive = i;
                     var stringToYield = previousEnd == null ? bufferContents : bufferContents + previousEnd;
-                    if ( !firstYield || stringToYield.Length != 0 ) yield return stringToYield;
+                    if (!firstYield || stringToYield.Length != 0) yield return stringToYield;
                     firstYield = false;
                     previousEnd = null;
                 }
@@ -224,13 +224,13 @@ public sealed class ReverseLineReader : IEnumerable<string>
                 previousEnd = endExclusive == 0 ? null : new string(charBuffer, 0, endExclusive) + previousEnd;
 
                 // If we didn't decode the start of the array, put it at the end for next time
-                if ( leftOverData != 0 ) Buffer.BlockCopy(buffer, 0, buffer, bufferSize, leftOverData);
+                if (leftOverData != 0) Buffer.BlockCopy(buffer, 0, buffer, bufferSize, leftOverData);
             }
 
-            if ( leftOverData != 0 )
+            if (leftOverData != 0)
                 // At the start of the final buffer, we had the end of another character.
                 throw new InvalidDataException("Invalid UTF-8 data at start of stream");
-            if ( firstYield && string.IsNullOrEmpty(previousEnd) ) yield break;
+            if (firstYield && string.IsNullOrEmpty(previousEnd)) yield break;
             yield return previousEnd ?? "";
         }
         finally
@@ -246,10 +246,10 @@ public static class StreamUtil
     public static void ReadExactly(Stream input, byte[] buffer, int bytesToRead)
     {
         var index = 0;
-        while ( index < bytesToRead )
+        while (index < bytesToRead)
         {
             var read = input.Read(buffer, index, bytesToRead - index);
-            if ( read == 0 )
+            if (read == 0)
                 throw new EndOfStreamException
                 (string.Format("End of stream reached with {0} byte{1} left to read.",
                     bytesToRead - index,

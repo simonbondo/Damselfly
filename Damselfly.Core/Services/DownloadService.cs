@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -76,7 +76,7 @@ public class DownloadService : IDownloadService
         desktopPath = new DirectoryInfo(Path.Combine(contentRootPath, s_appVPath));
         downloadsPath = new DirectoryInfo(Path.Combine(contentRootPath, s_downloadVPath));
 
-        if ( !downloadsPath.Exists )
+        if (!downloadsPath.Exists)
         {
             downloadsPath.Create();
             Logging.Log($"Created downloads folder: {downloadsPath}");
@@ -86,7 +86,7 @@ public class DownloadService : IDownloadService
             Logging.Log($"Downloads folder: {downloadsPath}");
         }
 
-        if ( desktopPath.Exists )
+        if (desktopPath.Exists)
             // Now, see if we have a desktop app
             CheckDesktopAppPaths(desktopPath);
     }
@@ -108,7 +108,7 @@ public class DownloadService : IDownloadService
         var macAppPath =
             desktopFiles.FirstOrDefault(x => x.Name.EndsWith("-mac-universal.zip", StringComparison.OrdinalIgnoreCase));
 
-        if ( macAppPath != null )
+        if (macAppPath != null)
         {
             _desktopAppInfo.MacOSApp = Path.Combine(s_appVPath, macAppPath.Name);
         }
@@ -118,27 +118,27 @@ public class DownloadService : IDownloadService
             macAppPath =
                 desktopFiles.FirstOrDefault(x => x.Name.EndsWith("-mac.zip", StringComparison.OrdinalIgnoreCase));
 
-            if ( macAppPath != null )
+            if (macAppPath != null)
                 _desktopAppInfo.MacOSApp = Path.Combine(s_appVPath, macAppPath.Name);
 
             // We only care about the M1 version if the unversal isn't available.
             var m1AppPath = desktopFiles.FirstOrDefault(x =>
                 x.Name.EndsWith("-mac-arm64.zip", StringComparison.OrdinalIgnoreCase));
 
-            if ( m1AppPath != null )
+            if (m1AppPath != null)
                 _desktopAppInfo.MacOSArmApp = Path.Combine(s_appVPath, m1AppPath.Name);
         }
 
         var winAppPath =
             desktopFiles.FirstOrDefault(x => x.Name.EndsWith("-win.zip", StringComparison.OrdinalIgnoreCase));
 
-        if ( winAppPath != null )
+        if (winAppPath != null)
             _desktopAppInfo.WindowsApp = Path.Combine(s_appVPath, winAppPath.Name);
 
         var linuxAppPath =
             desktopFiles.FirstOrDefault(x => x.Name.EndsWith("-linux.zip", StringComparison.OrdinalIgnoreCase));
 
-        if ( linuxAppPath != null )
+        if (linuxAppPath != null)
             _desktopAppInfo.LinuxApp = Path.Combine(s_appVPath, linuxAppPath.Name);
     }
 
@@ -170,22 +170,22 @@ public class DownloadService : IDownloadService
         {
             var zipFolder = Path.GetDirectoryName(serverZipPath);
 
-            if ( !Directory.Exists(zipFolder) )
+            if (!Directory.Exists(zipFolder))
                 Directory.CreateDirectory(zipFolder);
 
-            if ( File.Exists(serverZipPath) )
+            if (File.Exists(serverZipPath))
                 File.Delete(serverZipPath);
 
             Logging.Log($" Opening zip archive: {serverZipPath}");
             _statusService.UpdateStatus($"Preparing to zip {filesToZip.Count()} images...");
 
-            using ( var zip = ZipFile.Open(serverZipPath, ZipArchiveMode.Create) )
+            using (var zip = ZipFile.Open(serverZipPath, ZipArchiveMode.Create))
             {
                 int count = 1, total = filesToZip.Count();
 
-                foreach ( var imagePath in filesToZip )
+                foreach (var imagePath in filesToZip)
                 {
-                    if ( imagePath.Exists )
+                    if (imagePath.Exists)
                     {
                         Logging.Log($" Adding file to zip: {imagePath}");
 
@@ -193,19 +193,19 @@ public class DownloadService : IDownloadService
                         var internalZipPath = imagePath.Name;
 
                         // If we're altering the file at all, postfix the name with _export
-                        if ( !string.IsNullOrEmpty(config.WatermarkText) || config.Size != ExportSize.FullRes )
+                        if (!string.IsNullOrEmpty(config.WatermarkText) || config.Size != ExportSize.FullRes)
                         {
                             internalZipPath = Path.GetFileNameWithoutExtension(imagePath.Name) + "_export" +
                                               imagePath.Extension;
                             exportUnchanged = false;
                         }
 
-                        if ( config.KeepFolders )
+                        if (config.KeepFolders)
                             internalZipPath = Path.Combine(imagePath.Directory.Name, internalZipPath);
 
                         ZipArchiveEntry entry;
 
-                        if ( exportUnchanged )
+                        if (exportUnchanged)
                         {
                             // Export the original file, as-is
                             entry = zip.CreateEntryFromFile(imagePath.FullName, internalZipPath);
@@ -215,7 +215,7 @@ public class DownloadService : IDownloadService
                             // Transform the input file with rotation, watermark, etc.
                             entry = zip.CreateEntry(internalZipPath);
 
-                            using ( var zipStream = entry.Open() )
+                            using (var zipStream = entry.Open())
                             {
                                 // Run the transform - note we do this in-memory and directly on the stream so the
                                 // transformed file is never actually written to disk other than in the zip.
@@ -229,7 +229,7 @@ public class DownloadService : IDownloadService
                         // This also applies to files which don't have valid permissions on the current 
                         // file system, but can be read by the app as root.
                         // https://github.com/dotnet/runtime/issues/76006
-                        entry.ExternalAttributes = entry.ExternalAttributes | ( Convert.ToInt32( "664", 8 ) << 16 );
+                        entry.ExternalAttributes = entry.ExternalAttributes | (Convert.ToInt32("664", 8) << 16);
                     }
                     else
                     {
@@ -246,7 +246,7 @@ public class DownloadService : IDownloadService
 
             return Path.DirectorySeparatorChar + virtualZipPath;
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"Exception while creating zip file {serverZipPath}: {ex.Message}");
             return null;
@@ -261,7 +261,7 @@ public class DownloadService : IDownloadService
     /// <param name="timeSpan"></param>
     public void CleanUpOldDownloads(TimeSpan timeSpan)
     {
-        if ( downloadsPath.Exists )
+        if (downloadsPath.Exists)
         {
             var threshold = DateTime.UtcNow - timeSpan;
 
@@ -272,7 +272,7 @@ public class DownloadService : IDownloadService
                 .Where(x => x.CreationTimeUtc < threshold)
                 .ToList();
 
-            if ( toDelete.Any() )
+            if (toDelete.Any())
             {
                 Logging.LogWarning($"Cleaning up {toDelete.Count} download zips older than {threshold}");
 
@@ -297,7 +297,7 @@ public class DownloadService : IDownloadService
 
         var existing = db.DownloadConfigs.SingleOrDefault(x => x.Name.Equals(config.Name));
 
-        if ( existing != null )
+        if (existing != null)
         {
             config.ExportConfigId = existing.ExportConfigId;
             db.DownloadConfigs.Update(config);

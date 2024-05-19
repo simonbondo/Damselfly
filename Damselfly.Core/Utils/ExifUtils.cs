@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using MetadataExtractor;
 
@@ -43,7 +43,7 @@ public static class ExifUtils
         try
         {
             var val = dir?.GetInt32(tagType);
-            if ( val.HasValue )
+            if (val.HasValue)
                 retVal = val.Value;
         }
         catch
@@ -60,10 +60,10 @@ public static class ExifUtils
         try
         {
             var val = dir?.GetDateTime(tagType);
-            if ( val.HasValue )
+            if (val.HasValue)
                 retVal = val.Value;
         }
-        catch( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogVerbose($"Error reading date/time metadata! {ex}");
         }

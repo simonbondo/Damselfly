@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Damselfly.Core.DbModels.Images;
@@ -52,7 +52,7 @@ public class ImageProcessService : IImageProcessor, IHashProvider
     {
         var processor = _factory.GetProcessor(source.Extension);
 
-        if ( processor != null )
+        if (processor != null)
         {
             var result = await processor.CreateThumbs(source, destFiles);
 
@@ -75,7 +75,7 @@ public class ImageProcessService : IImageProcessor, IHashProvider
 
         var processor = _factory.GetProcessor(ext);
 
-        if ( processor != null )
+        if (processor != null)
             await processor.TransformDownloadImage(input, output, exportConfig);
     }
 
@@ -85,7 +85,7 @@ public class ImageProcessService : IImageProcessor, IHashProvider
 
         var processor = _factory.GetProcessor(ext);
 
-        if ( processor != null )
+        if (processor != null)
             await processor.GetCroppedFile(source, x, y, width, height, destFile);
     }
 
@@ -93,7 +93,7 @@ public class ImageProcessService : IImageProcessor, IHashProvider
     {
         var processor = _factory.GetProcessor(path.Extension);
 
-        if ( processor != null )
+        if (processor != null)
             await processor.CropImage(path, x, y, width, height, stream);
     }
 
@@ -105,7 +105,7 @@ public class ImageProcessService : IImageProcessor, IHashProvider
     /// <returns></returns>
     public bool IsImageFileType(FileInfo filename)
     {
-        if ( filename.IsHidden() )
+        if (filename.IsHidden())
             return false;
 
         var processor = _factory.GetProcessor(filename.Extension);

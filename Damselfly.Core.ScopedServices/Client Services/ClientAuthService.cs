@@ -1,4 +1,4 @@
-﻿using System.Net.Http.Headers;
+using System.Net.Http.Headers;
 using Blazored.LocalStorage;
 using Damselfly.Core.Models;
 using Damselfly.Core.ScopedServices.Interfaces;
@@ -34,7 +34,7 @@ public class ClientAuthService : IAuthService
 
         var provider = _authenticationStateProvider as ApiAuthenticationStateProvider;
 
-        if ( loginResult != null && provider != null &&loginResult.Successful )
+        if (loginResult != null && provider != null && loginResult.Successful)
         {
             await _localStorage.SetItemAsync("authToken", loginResult.Token);
 

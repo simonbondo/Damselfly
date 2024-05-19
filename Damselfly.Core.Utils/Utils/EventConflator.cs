@@ -1,4 +1,4 @@
-﻿using System.Threading;
+using System.Threading;
 
 namespace Damselfly.Core.Utils;
 
@@ -46,7 +46,7 @@ public class EventConflator
     /// <param name="state"></param>
     private void TimerCallback(object? state)
     {
-        ClearTimer();  
+        ClearTimer();
         theCallback(state);
     }
 
@@ -54,7 +54,7 @@ public class EventConflator
     {
         var oldTimer = eventTimer;
         eventTimer = null;
-        if( oldTimer != null )
+        if (oldTimer != null)
             oldTimer.Dispose();
     }
 }

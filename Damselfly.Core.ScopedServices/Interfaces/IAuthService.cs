@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.Models;
+using Damselfly.Core.Models;
 
 namespace Damselfly.Core.ScopedServices.Interfaces;
 

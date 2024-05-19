@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,7 +25,7 @@ public class ObjectDetector
         {
             scorer = new YoloScorer<YoloCocoModel>();
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"Unexpected exception initialising Object detection: {ex}");
             scorer = null; // disable.
@@ -42,34 +42,34 @@ public class ObjectDetector
         IList<ImageDetectResult>? result = null;
         try
         {
-            if( scorer != null )
+            if (scorer != null)
             {
-                var watch = new Stopwatch( "DetectObjects" );
+                var watch = new Stopwatch("DetectObjects");
 
                 // There's a min of 640x640 for the model.
-                if( image.Width > 640 && image.Height > 640 )
+                if (image.Width > 640 && image.Height > 640)
                 {
-                    var predictions = scorer.Predict( image );
+                    var predictions = scorer.Predict(image);
 
                     watch.Stop();
 
-                    var objectsFound = predictions.Where( x => x.Score > predictionThreshold )
-                        .Select( x => MakeResult( x ) )
+                    var objectsFound = predictions.Where(x => x.Score > predictionThreshold)
+                        .Select(x => MakeResult(x))
                         .ToList();
 
                     result = objectsFound;
                 }
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"Error during object detection: {ex.Message}");
         }
 
-        if( result == null )
+        if (result == null)
             result = new List<ImageDetectResult>();
 
-        return Task.FromResult( result );
+        return Task.FromResult(result);
     }
 
     private ImageDetectResult MakeResult(YoloPrediction prediction)

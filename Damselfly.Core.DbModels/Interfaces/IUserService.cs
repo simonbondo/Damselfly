@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 
 namespace Damselfly.Core.ScopedServices.Interfaces;

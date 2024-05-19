@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -54,16 +54,16 @@ public class RescanService : IRescanService
     {
         var providers = new List<IRescanProvider>();
 
-        if ( type.HasFlag(RescanTypes.AI) )
+        if (type.HasFlag(RescanTypes.AI))
             providers.Add(_aiService);
-        if ( type.HasFlag(RescanTypes.Thumbnails) )
+        if (type.HasFlag(RescanTypes.Thumbnails))
             providers.Add(_thumbService);
-        if ( type.HasFlag(RescanTypes.Metadata) )
+        if (type.HasFlag(RescanTypes.Metadata))
             providers.Add(_metaDataService);
-        if ( type.HasFlag(RescanTypes.Indexing) )
+        if (type.HasFlag(RescanTypes.Indexing))
             providers.Add(_indexingService);
 
-        if ( providers.Count() != BitOperations.PopCount((ulong)type) )
+        if (providers.Count() != BitOperations.PopCount((ulong)type))
             throw new ArgumentException($"Unknown rescan service {type}");
 
         return providers;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -110,7 +110,7 @@ public class ThemeService : IThemeService
 
     public Task<ThemeConfig> GetThemeConfig(string name)
     {
-        if ( _themeConfigs.TryGetValue(name, out var config) )
+        if (_themeConfigs.TryGetValue(name, out var config))
             return Task.FromResult(config);
 
         return null;
@@ -119,7 +119,7 @@ public class ThemeService : IThemeService
     public async Task ApplyTheme(string themeName)
     {
         var themeConfig = await GetThemeConfig(themeName);
-        if ( themeConfig != null )
+        if (themeConfig != null)
             await ApplyTheme(themeConfig);
     }
 
@@ -132,14 +132,14 @@ public class ThemeService : IThemeService
     {
         var themesFolder = new DirectoryInfo(Path.Combine(contentRootPath, "themes"));
 
-        if ( themesFolder.Exists )
+        if (themesFolder.Exists)
         {
             Logging.Log($"Scanning for themes in {themesFolder}...");
 
             var themes = themesFolder.GetFiles("*.css")
                 .Select(x => x.Name)
                 .ToList();
-            foreach ( var themeFile in themes )
+            foreach (var themeFile in themes)
             {
                 var name = Path.GetFileNameWithoutExtension(themeFile);
                 var themeFullPath = Path.Combine(themesFolder.FullName, themeFile);
@@ -162,10 +162,10 @@ public class ThemeService : IThemeService
         var value = string.Empty;
         try
         {
-            if ( pairs.TryGetValue(ID, out value) )
+            if (pairs.TryGetValue(ID, out value))
                 return value;
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.Log($"Invalid colour value {value} for {ID}: {ex.Message}");
         }
@@ -224,7 +224,7 @@ public class ThemeService : IThemeService
 
             return themeConfig;
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogWarning($"Unable to parse theme CSS: {ex.Message}");
             return null;

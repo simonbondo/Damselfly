@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using ImageClassification.ImageDataStructures;
@@ -12,7 +12,7 @@ public static class ConsoleHelpers
         var defaultColor = Console.ForegroundColor;
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine(" ");
-        foreach ( var line in lines ) Console.WriteLine(line);
+        foreach (var line in lines) Console.WriteLine(line);
         var maxLength = lines.Select(x => x.Length).Max();
         Console.WriteLine(new string('#', maxLength));
         Console.ForegroundColor = defaultColor;
@@ -38,7 +38,7 @@ public static class ConsoleHelpers
         Console.WriteLine(exceptionTitle);
         Console.WriteLine(new string('#', exceptionTitle.Length));
         Console.ForegroundColor = defaultColor;
-        foreach ( var line in lines ) Console.WriteLine(line);
+        foreach (var line in lines) Console.WriteLine(line);
     }
 
     public static void ConsoleWrite(this ImageNetDataProbability self)

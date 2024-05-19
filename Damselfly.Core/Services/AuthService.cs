@@ -18,7 +18,7 @@ public class AuthService : IAuthService
     private readonly UserManager<AppIdentityUser> _userManager;
     private readonly SignInManager<AppIdentityUser> _signInManager;
 
-    public AuthService( UserManager<AppIdentityUser> userManager,
+    public AuthService(UserManager<AppIdentityUser> userManager,
                 SignInManager<AppIdentityUser> signInManager)
     {
         _signInManager = signInManager;
@@ -28,17 +28,17 @@ public class AuthService : IAuthService
 
     public async Task<LoginResult> Login(LoginModel login)
     {
-        var user = await _signInManager.UserManager.FindByEmailAsync( login.Email );
+        var user = await _signInManager.UserManager.FindByEmailAsync(login.Email);
 
-        if( user == null )
+        if (user == null)
             return new LoginResult { Successful = false, Error = "Username or password was invalid." };
 
-        var result = await _signInManager.PasswordSignInAsync( user.UserName, login.Password, login.RememberMe, false );
+        var result = await _signInManager.PasswordSignInAsync(user.UserName, login.Password, login.RememberMe, false);
 
-        if( !result.Succeeded )
+        if (!result.Succeeded)
             return new LoginResult { Successful = false, Error = "Username or password was invalid." };
 
-        var roles = await _signInManager.UserManager.GetRolesAsync( user );
+        var roles = await _signInManager.UserManager.GetRolesAsync(user);
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -46,12 +46,12 @@ public class AuthService : IAuthService
             new Claim(ClaimTypes.Name, user.UserName)
         };
 
-        foreach( var role in roles )
-            claims.Add( new Claim( ClaimTypes.Role, role ) );
+        foreach (var role in roles)
+            claims.Add(new Claim(ClaimTypes.Role, role));
 
-        var key = new SymmetricSecurityKey( Encoding.UTF8.GetBytes( "BlahSomeKeyBlahFlibbertyGibbertNonsenseBananarama" ) );
-        var creds = new SigningCredentials( key, SecurityAlgorithms.HmacSha256 );
-        var expiry = DateTime.Now.AddDays( Convert.ToInt32( 1 ) );
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("BlahSomeKeyBlahFlibbertyGibbertNonsenseBananarama"));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        var expiry = DateTime.Now.AddDays(Convert.ToInt32(1));
 
         var token = new JwtSecurityToken(
             "https://localhost",
@@ -61,7 +61,7 @@ public class AuthService : IAuthService
             signingCredentials: creds
         );
 
-        return new LoginResult { Successful = true, Token = new JwtSecurityTokenHandler().WriteToken( token ) };
+        return new LoginResult { Successful = true, Token = new JwtSecurityTokenHandler().WriteToken(token) };
     }
 
     public Task Logout()
@@ -69,15 +69,15 @@ public class AuthService : IAuthService
         throw new NotImplementedException();
     }
 
-    public async Task<RegisterResult> Register( RegisterModel model)
+    public async Task<RegisterResult> Register(RegisterModel model)
     {
         var newUser = new AppIdentityUser { UserName = model.Email, Email = model.Email };
 
-        var result = await _userManager.CreateAsync( newUser, model.Password );
+        var result = await _userManager.CreateAsync(newUser, model.Password);
 
-        if( !result.Succeeded )
+        if (!result.Succeeded)
         {
-            var errors = result.Errors.Select( x => x.Description );
+            var errors = result.Errors.Select(x => x.Description);
 
             return new RegisterResult { Successful = false, Errors = errors };
         }

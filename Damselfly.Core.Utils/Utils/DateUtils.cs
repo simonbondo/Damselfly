@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Damselfly.Core.Utils;
 
@@ -14,7 +14,7 @@ public static class DateUtils
     /// <returns></returns>
     public static string Display(this DateTime date)
     {
-        if ( date == DateTime.MinValue )
+        if (date == DateTime.MinValue)
             return "Unknown";
 
         return $"{date:dd-MMM-yyy HH:mm:ss}";

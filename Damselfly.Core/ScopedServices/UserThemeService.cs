@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Damselfly.Core.Constants;
 using Damselfly.Core.DbModels;
 using Damselfly.Core.ScopedServices.Interfaces;
@@ -26,7 +26,7 @@ public class UserThemeService
         {
             var newTheme = _themeService.GetThemeConfig(value).Result;
 
-            if ( newTheme is not null )
+            if (newTheme is not null)
             {
                 CurrentTheme = newTheme;
                 _configService.Set(ConfigSettings.Theme, value);

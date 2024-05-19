@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.Constants;
+using Damselfly.Core.Constants;
 using Damselfly.Core.DbModels.Models.APIModels;
 using Damselfly.Core.Models;
 using Damselfly.Core.ScopedServices.Interfaces;
@@ -24,10 +24,11 @@ public class TasksController : ControllerBase
     [HttpGet("/api/tasks")]
     public async Task<List<ScheduledTask>> GetTasks()
     {
-        try {
+        try
+        {
             return await _service.GetTasksAsync();
         }
-        catch( Exception ex )
+        catch (Exception ex)
         {
             _logger.LogError($"Unable to retrieve task list: {ex.Message}.");
             return new List<ScheduledTask>();

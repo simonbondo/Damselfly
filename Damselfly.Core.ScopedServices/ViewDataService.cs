@@ -1,4 +1,4 @@
-﻿namespace Damselfly.Core.ScopedServices;
+namespace Damselfly.Core.ScopedServices;
 
 /// <summary>
 ///     Service to maintain state around the toolbars - such as whether
@@ -24,7 +24,7 @@ public class ViewDataService
 
     public void SetSideBarState(SideBarState state)
     {
-        if ( !state.Equals(sidebarState) )
+        if (!state.Equals(sidebarState))
         {
             sidebarState = state;
             OnStateChanged(state);
@@ -45,7 +45,7 @@ public class ViewDataService
         public override bool Equals(object? obj)
         {
             var other = obj as SideBarState;
-            if ( other != null )
+            if (other != null)
                 return ShowBasket == other.ShowBasket &&
                        ShowFolderList == other.ShowFolderList &&
                        ShowExport == other.ShowExport &&

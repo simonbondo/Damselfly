@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.Constants;
+using Damselfly.Core.Constants;
 using Damselfly.Core.DbModels.Models;
 using Damselfly.Core.DbModels.Models.APIModels;
 using Damselfly.Core.Models;
@@ -81,13 +81,13 @@ public class ClientConfigService : BaseConfigService, IUserConfigService, ISyste
         List<ConfigSetting>? allSettings;
         try
         {
-            if ( _userId.HasValue )
+            if (_userId.HasValue)
                 allSettings =
                     await httpClient.CustomGetFromJsonAsync<List<ConfigSetting>>($"/api/config/user/{_userId}");
             else
                 allSettings = await httpClient.CustomGetFromJsonAsync<List<ConfigSetting>>("/api/config");
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             _logger.LogError($"Exception loading all settings: {ex.Message}");
             allSettings = new List<ConfigSetting>();

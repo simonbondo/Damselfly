@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Damselfly.Core.DbModels.Models;
 using Damselfly.Core.ScopedServices.Interfaces;
 
@@ -35,6 +35,6 @@ public class ServerUserStatusService : IUserStatusService
     private void NotifyStateChanged(StatusUpdate update)
     {
         // UserID -1 means everyone should get it
-        if ( update.UserID is null || update.UserID == CurrentUserId ) OnStatusChanged?.Invoke(update.NewStatus);
+        if (update.UserID is null || update.UserID == CurrentUserId) OnStatusChanged?.Invoke(update.NewStatus);
     }
 }

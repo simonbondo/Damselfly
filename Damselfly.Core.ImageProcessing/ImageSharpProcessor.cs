@@ -64,10 +64,10 @@ public class ImageSharpProcessor : IImageProcessor, IHashProvider
         var load = new Stopwatch("ImageSharpLoad");
 
         var largest = destFiles.Values
-                               .OrderByDescending( x => x.width )
+                               .OrderByDescending(x => x.width)
                                .First();
 
-        DecoderOptions options = new() { TargetSize = new(  width: largest.width, height: largest.height ) };
+        DecoderOptions options = new() { TargetSize = new(width: largest.width, height: largest.height) };
 
         // Image.Load(string path) is a shortcut for our default type. 
         // Other pixel formats use Image.Load<TPixel>(string path))
@@ -86,7 +86,7 @@ public class ImageSharpProcessor : IImageProcessor, IHashProvider
 
         var thumbs = new Stopwatch("ImageSharpThumbs");
 
-        foreach ( var pair in destFiles )
+        foreach (var pair in destFiles)
         {
             var dest = pair.Key;
             var config = pair.Value;
@@ -96,7 +96,7 @@ public class ImageSharpProcessor : IImageProcessor, IHashProvider
 
             Logging.LogTrace("Generating thumbnail for {0}: {1}x{2}", source.Name, size.Width, size.Height);
 
-            if ( config.cropToRatio )
+            if (config.cropToRatio)
                 // For the smallest thumbs, we crop to fix the aspect exactly.
                 mode = ResizeMode.Crop;
 
@@ -164,11 +164,11 @@ public class ImageSharpProcessor : IImageProcessor, IHashProvider
     {
         Logging.Log($" Running image transform for Watermark: {config.WatermarkText}");
 
-        DecoderOptions options = new() { TargetSize = new( width: config.MaxImageSize, height: config.MaxImageSize ) };
+        DecoderOptions options = new() { TargetSize = new(width: config.MaxImageSize, height: config.MaxImageSize) };
 
         using var img = await Image.LoadAsync(options, input);
 
-        if ( config.Size != ExportSize.FullRes )
+        if (config.Size != ExportSize.FullRes)
         {
             var maxSize = config.MaxImageSize;
 
@@ -188,7 +188,7 @@ public class ImageSharpProcessor : IImageProcessor, IHashProvider
             img.Mutate(x => x.AutoOrient());
         }
 
-        if ( !string.IsNullOrEmpty(config.WatermarkText) && fontCollection != null )
+        if (!string.IsNullOrEmpty(config.WatermarkText) && fontCollection != null)
         {
             // Apply the watermark if one's been specified.
             var fontFamily = fontCollection.Get("Arial");
@@ -197,7 +197,7 @@ public class ImageSharpProcessor : IImageProcessor, IHashProvider
             img.Mutate(context => ApplyWaterMark(context, font, config.WatermarkText, Color.White));
         }
 
-        await img.SaveAsync( output, img.Metadata.DecodedImageFormat );
+        await img.SaveAsync(output, img.Metadata.DecodedImageFormat);
     }
 
     /// <summary>
@@ -217,7 +217,7 @@ public class ImageSharpProcessor : IImageProcessor, IHashProvider
 
             Logging.Log("Watermark font installed: {0}", fontPath);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"Exception installing watermark font: {ex.Message}");
         }
@@ -241,7 +241,7 @@ public class ImageSharpProcessor : IImageProcessor, IHashProvider
 
             image.ProcessPixelRows(pixelAccessor =>
             {
-                for ( var y = 0; y < pixelAccessor.Height; y++ )
+                for (var y = 0; y < pixelAccessor.Height; y++)
                 {
                     var pixelRowSpan = pixelAccessor.GetRowSpan(y);
 
@@ -257,7 +257,7 @@ public class ImageSharpProcessor : IImageProcessor, IHashProvider
             hashWatch.Stop();
             Logging.LogVerbose($"Hashed image ({result}) in {hashWatch.HumanElapsedTime}");
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"Exception while calculating hash: {ex.Message}");
         }
@@ -284,7 +284,7 @@ public class ImageSharpProcessor : IImageProcessor, IHashProvider
 
         var ratio = 4; // Landscape, we make the text 25% of the width
 
-        if ( imgSize.Width >= imgSize.Height )
+        if (imgSize.Width >= imgSize.Height)
             // Landscape - make it 1/6 of the width
             ratio = 6;
 

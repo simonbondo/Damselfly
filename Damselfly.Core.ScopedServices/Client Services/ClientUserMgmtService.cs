@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.Constants;
+using Damselfly.Core.Constants;
 using Damselfly.Core.DbModels.Authentication;
 using Damselfly.Core.DbModels.Models.APIModels;
 using Damselfly.Core.ScopedServices.ClientServices;
@@ -29,7 +29,7 @@ public class ClientUserMgmtService : IUserMgmtService
         return await httpClient.CustomGetFromJsonAsync<ICollection<AppIdentityUser>>("/api/users");
     }
 
-    public async Task<AppIdentityUser> GetUser( int userId )
+    public async Task<AppIdentityUser> GetUser(int userId)
     {
         return await httpClient.CustomGetFromJsonAsync<AppIdentityUser>($"/api/user/{userId}");
     }

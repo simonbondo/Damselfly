@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using Damselfly.Core.DbModels.Models.APIModels;
 using Damselfly.Core.Models;
 using Damselfly.Core.ScopedServices.Interfaces;
@@ -31,7 +31,7 @@ public abstract class BaseConfigService
 
         _cache.Clear();
 
-        if ( allSettings.Any() )
+        if (allSettings.Any())
         {
             allSettings.ForEach(x => _cache[x.Name] = x);
             _logger.LogInformation($"Loaded {allSettings.Count()} settings into config cache.");
@@ -47,16 +47,16 @@ public abstract class BaseConfigService
 
     protected bool SetSetting(ConfigSetting setting)
     {
-        if( setting == null )
-            throw new ArgumentException( $"Invalid setting passed to SetSetting" );
+        if (setting == null)
+            throw new ArgumentException($"Invalid setting passed to SetSetting");
 
-        if ( _cache.TryGetValue(setting.Name, out var existingValue) )
+        if (_cache.TryGetValue(setting.Name, out var existingValue))
             // Existing cache value is the same, so do nothing
-            if ( existingValue.Equals(setting.Value) )
+            if (existingValue.Equals(setting.Value))
                 return false;
 
         // Update the cache
-        if ( setting.Value == null )
+        if (setting.Value == null)
             _cache.Remove(setting.Name);
         else
             _cache[setting.Name] = setting;
@@ -69,7 +69,7 @@ public abstract class BaseConfigService
 
     private ConfigSetting GetSetting(string name)
     {
-        if ( _cache.TryGetValue(name, out var value) )
+        if (_cache.TryGetValue(name, out var value))
             return value;
 
         return null;
@@ -84,7 +84,7 @@ public abstract class BaseConfigService
     {
         var existing = GetSetting(name);
 
-        if ( existing != null )
+        if (existing != null)
             return existing.Value;
 
         return defaultIfNotExists;
@@ -96,8 +96,8 @@ public abstract class BaseConfigService
 
         var setting = Get(name);
 
-        if ( !string.IsNullOrEmpty(setting) )
-            if ( !Enum.TryParse(setting, true, out resultInputType) )
+        if (!string.IsNullOrEmpty(setting))
+            if (!Enum.TryParse(setting, true, out resultInputType))
                 resultInputType = defaultIfNotExists;
         return resultInputType;
     }
@@ -108,8 +108,8 @@ public abstract class BaseConfigService
 
         var value = Get(name);
 
-        if ( !string.IsNullOrEmpty(value) )
-            if ( !bool.TryParse(value, out result) )
+        if (!string.IsNullOrEmpty(value))
+            if (!bool.TryParse(value, out result))
                 result = defaultIfNotExists;
 
         return result;
@@ -121,8 +121,8 @@ public abstract class BaseConfigService
 
         var value = Get(name);
 
-        if ( !string.IsNullOrEmpty(value) )
-            if ( !int.TryParse(value, out result) )
+        if (!string.IsNullOrEmpty(value))
+            if (!int.TryParse(value, out result))
                 result = defaultIfNotExists;
 
         return result;

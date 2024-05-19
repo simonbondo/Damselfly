@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Damselfly.Core.Models;
 
 namespace Damselfly.Core.DbModels.Models.APIModels;

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -41,12 +41,12 @@ public class DominantHueColorCalculator
     /// <summary>
     ///     The Hue histogram used in the calculation for dominant color
     /// </summary>
-    public Dictionary<int, uint> HueHistogram => new ( hueHistogram );
+    public Dictionary<int, uint> HueHistogram => new(hueHistogram);
 
     /// <summary>
     ///     The smoothed histogram used in the calculation for dominant color
     /// </summary>
-    public Dictionary<int, uint> SmoothedHueHistorgram => new ( smoothedHueHistogram );
+    public Dictionary<int, uint> SmoothedHueHistorgram => new(smoothedHueHistogram);
 
     /// <summary>
     ///     Get dominant hue in given hue histogram

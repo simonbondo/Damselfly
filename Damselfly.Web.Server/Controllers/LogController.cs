@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.Constants;
+using Damselfly.Core.Constants;
 using Damselfly.Core.DbModels.Models.APIModels;
 using Damselfly.Core.Utils;
 using Microsoft.AspNetCore.Authorization;
@@ -34,7 +34,7 @@ public class LogController : ControllerBase
             .OrderByDescending(x => x.LastWriteTimeUtc)
             .FirstOrDefault();
 
-        if ( file != null )
+        if (file != null)
         {
             response.LogEntries = new List<LogEntry>();
             response.LogFileName = file.Name;
@@ -48,7 +48,7 @@ public class LogController : ControllerBase
                     .Select(x => CreateLogEntry(x))
                     .ToList();
             }
-            catch ( Exception ex )
+            catch (Exception ex)
             {
                 _logger.LogError($"Exception reading logs: {ex}");
             }
@@ -61,11 +61,11 @@ public class LogController : ControllerBase
     private LogEntry CreateLogEntry(string s)
     {
         var e = new LogEntry();
-        if ( !string.IsNullOrWhiteSpace(s) && s.StartsWith('[') )
+        if (!string.IsNullOrWhiteSpace(s) && s.StartsWith('['))
             try
             {
                 var parts = s.Split(']');
-                if ( parts.Length > 1 )
+                if (parts.Length > 1)
                 {
                     e.Entry = parts[1];
 
@@ -75,7 +75,7 @@ public class LogController : ControllerBase
                     e.Level = parts2[2];
                 }
             }
-            catch ( Exception )
+            catch (Exception)
             {
                 // Don't log - we'll get an infinite loop!
             }

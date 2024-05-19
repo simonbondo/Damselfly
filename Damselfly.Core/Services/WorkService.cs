@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
@@ -31,7 +31,7 @@ public class WorkService : IWorkService
     // for new entries rather than just ploughing through it. 
     private volatile bool _newJobsFlag;
 
-    private readonly UniqueConcurrentPriorityQueue<IProcessJob, string> _jobQueue = new( x => x.Description );
+    private readonly UniqueConcurrentPriorityQueue<IProcessJob, string> _jobQueue = new(x => x.Description);
 
     private readonly ConcurrentBag<IProcessJobFactory> _jobSources = new();
     private const int _maxQueueSize = 500;
@@ -82,7 +82,7 @@ public class WorkService : IWorkService
 
     private void SetStatus(string newStatusText, JobStatus newStatus, int newCPULevel)
     {
-        if ( newStatusText != Status.StatusText || newStatus != Status.Status || newCPULevel != Status.CPULevel )
+        if (newStatusText != Status.StatusText || newStatus != Status.Status || newCPULevel != Status.CPULevel)
         {
             Status.StatusText = newStatusText;
             Status.Status = newStatus;
@@ -109,13 +109,13 @@ public class WorkService : IWorkService
     /// </summary>
     private async Task ProcessJobs()
     {
-        while ( true )
+        while (true)
         {
             var cpuPercentage = _cpuSettings.CurrentCPULimit;
 
-            if ( Paused || cpuPercentage == 0 )
+            if (Paused || cpuPercentage == 0)
             {
-                if ( Paused )
+                if (Paused)
                     SetStatus("Paused", JobStatus.Paused, cpuPercentage);
                 else
                     SetStatus("Disabled", JobStatus.Disabled, cpuPercentage);
@@ -127,15 +127,15 @@ public class WorkService : IWorkService
 
             var getNewJobs = _newJobsFlag;
             _newJobsFlag = false;
-            if( _jobQueue.TryDequeue( out var item ) )
+            if (_jobQueue.TryDequeue(out var item))
                 await ProcessJob(item, cpuPercentage);
             else
                 // No job to process, so we want to grab more
                 getNewJobs = true;
 
             // See if there's any higher-priority jobs to process
-            if ( getNewJobs && !PopulateJobQueue() )
-                if ( _jobQueue.IsEmpty )
+            if (getNewJobs && !PopulateJobQueue())
+                if (_jobQueue.IsEmpty)
                 {
                     // Nothing to do, so set the status to idle, and have a kip.
                     SetStatus("Idle", JobStatus.Idle, cpuPercentage);
@@ -175,8 +175,8 @@ public class WorkService : IWorkService
 
         var newJobs = false;
 
-        foreach ( var source in _jobSources.OrderBy(x => x.Priority) )
-            if ( PopulateJobsForService(source, _maxQueueSize - _jobSources.Count) )
+        foreach (var source in _jobSources.OrderBy(x => x.Priority))
+            if (PopulateJobsForService(source, _maxQueueSize - _jobSources.Count))
                 newJobs = true;
 
         watch.Stop();
@@ -197,19 +197,19 @@ public class WorkService : IWorkService
 
         var watch = new Stopwatch("PopulateJobsForService");
 
-        if ( maxCount > 0 )
+        if (maxCount > 0)
             try
             {
                 var jobs = source.GetPendingJobs(maxCount).Result;
 
-                foreach ( var job in jobs )
-                    if ( _jobQueue.TryAdd(job, (int)job.Priority) )
+                foreach (var job in jobs)
+                    if (_jobQueue.TryAdd(job, (int)job.Priority))
                         newJobs++;
 
-                if ( newJobs > 0 )
+                if (newJobs > 0)
                     Logging.LogVerbose($"Added {newJobs} jobs to pending queue for {source.GetType().Name}");
             }
-            catch ( Exception ex )
+            catch (Exception ex)
             {
                 Logging.LogError($"Exception getting jobs: {ex.Message}");
             }
@@ -231,7 +231,7 @@ public class WorkService : IWorkService
 
         // If we can't process, we'll discard this job, and pick it 
         // up again in future during the next GetPendingJobs call.
-        if ( job.CanProcess )
+        if (job.CanProcess)
         {
             SetStatus($"{job.Name}", JobStatus.Running, cpuPercentage);
 
@@ -242,7 +242,7 @@ public class WorkService : IWorkService
             {
                 await job.Process();
             }
-            catch ( Exception ex )
+            catch (Exception ex)
             {
                 Logging.LogError($"Exception processing {job.Description}: {ex.Message}");
             }
@@ -257,7 +257,7 @@ public class WorkService : IWorkService
             // we'd sleep for 0.33s.
             var sleepFactor = 1.0 / (cpuPercentage / 100.0) - 1;
 
-            if ( sleepFactor > 0 )
+            if (sleepFactor > 0)
             {
                 // Never ever sleep for more than 10s. Otherwise a long-running job that takes a minute
                 // to complete could end up freezing the worker thread for 3 minutes, which makes no

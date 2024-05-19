@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Yolov5Net.Scorer.Models.Abstract;
 
 namespace Yolov5Net.Scorer.Models;
