@@ -11,6 +11,7 @@ using Damselfly.Core.DbModels.Authentication;
 using Damselfly.Core.ImageProcessing;
 using Damselfly.Core.Models;
 using Damselfly.Core.ScopedServices.ClientServices;
+using Damselfly.Core.ScopedServices.Interfaces;
 using Damselfly.Core.Services;
 using Damselfly.Core.Utils;
 using Damselfly.Shared.Utils;
@@ -23,7 +24,6 @@ using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Events;
 using ILogger = Serilog.ILogger;
-using Damselfly.Core.ScopedServices.Interfaces;
 
 namespace Damselfly.Web;
 

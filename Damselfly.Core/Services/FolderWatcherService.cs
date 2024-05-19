@@ -26,7 +26,7 @@ public class FolderWatcherService
 
     private bool _fileWatchersDisabled;
     private IndexingService _indexingService;
-    private Task _queueTask;
+    private readonly Task _queueTask;
 
     public FolderWatcherService(IServiceScopeFactory scopeFactory,
         IStatusService statusService,

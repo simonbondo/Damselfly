@@ -11,7 +11,7 @@ namespace ImageClassification.ModelScorer;
 
 public class TFModelScorer
 {
-    private static string ImageReal = nameof(ImageReal);
+    private static readonly string ImageReal = nameof(ImageReal);
     private readonly string imagesFolder;
     private readonly string labelsLocation;
     private readonly MLContext mlContext;

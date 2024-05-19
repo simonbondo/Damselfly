@@ -43,7 +43,7 @@ public struct Stopwatch
         }
     }
 
-    private int taskThresholdMS = -1;
+    private readonly int taskThresholdMS = -1;
     private readonly string timername;
     private readonly long start;
     private long end;
