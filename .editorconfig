@@ -6,7 +6,7 @@ charset = utf-8
 indent_style = space
 
 # Xml files
-[*.{xml,csproj}]
+[*.{xml,csproj,props,config,targets}]
 indent_size = 2
 
 # C# files
