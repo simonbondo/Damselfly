@@ -1,8 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Serilog" />
@@ -17,17 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Utils\" />
-    <Folder Include="ML\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="Humanizer" />
-    <None Remove="Microsoft.EntityFrameworkCore.Tools" />
-    <None Remove="System.Drawing.Common" />
-    <None Remove="Classes\" />
-    <None Remove="Microsoft.AspNetCore.Components.Authorization" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Damselfly.Shared.Utils\Damselfly.Shared.Utils.csproj" />
   </ItemGroup>
+
 </Project>

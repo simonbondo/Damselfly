@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,9 +12,5 @@
     <PackageReference Include="Humanizer" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" />
   </ItemGroup>
-  <ItemGroup>
-    <None Remove="Microsoft.AspNetCore.SignalR.Common" />
-    <None Remove="Microsoft.AspNetCore.SignalR.Client" />
-    <None Remove="Microsoft.AspNetCore.SignalR.Core" />
-  </ItemGroup>
+
 </Project>

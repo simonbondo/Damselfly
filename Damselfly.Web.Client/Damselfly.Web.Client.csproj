@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <RazorLangVersion>8.0</RazorLangVersion>
-    <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
     <RunAOTCompilation>false</RunAOTCompilation>
@@ -13,6 +12,7 @@
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'https' ">
     <ExternalConsole>true</ExternalConsole>
   </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Identity" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" />
@@ -59,32 +59,18 @@
       <ReferenceSourceTarget>ProjectReference</ReferenceSourceTarget>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Pages\" />
-    <Folder Include="Services\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="Extensions\" />
-    <None Remove="Microsoft.AspNetCore.WebUtilities" />
-    <None Remove="Syncfusion.Blazor.Maps" />
-    <None Remove="Microsoft.AspNetCore.SignalR.Client" />
-    <None Remove="Serilog" />
-    <None Remove="Blazored.LocalStorage" />
-    <None Remove="Services\" />
-    <None Remove="Serilog.Sinks.BrowserHttp" />
-    <None Remove="Serilog.Extensions.Logging" />
-    <None Remove="BlazorPanzoom" />
-  </ItemGroup>
 
   <ItemGroup>
     <None Update="Shared\ImageCanvas.razor.css">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </None>
   </ItemGroup>
+
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
     <ReadLinesFromFile File="../VERSION">
       <Output TaskParameter="Lines" PropertyName="VersionNumber" />
     </ReadLinesFromFile>
     <Exec Command="echo %22const CACHE_VERSION='$(VersionNumber)-$(CurrentDate)'%22 &gt; wwwroot/version.js" />
   </Target>
+
 </Project>

@@ -1,14 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Library</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="ModelScorer\ModelScorerCustom.cs" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Damselfly.Core.Utils\Damselfly.Core.Utils.csproj" />
@@ -21,9 +15,7 @@
     <PackageReference Include="Microsoft.ML.TensorFlow.Redist" />
     <PackageReference Include="SixLabors.ImageSharp" />
   </ItemGroup>
-  <ItemGroup>
-    <None Remove="SixLabors.ImageSharp" />
-  </ItemGroup>
+
   <ItemGroup>
     <None Update="Models\imagenet.tsv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -38,4 +30,5 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
 </Project>
