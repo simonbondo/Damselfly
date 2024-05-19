@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.Constants;
+using Damselfly.Core.Constants;
 using Damselfly.Core.DbModels.Models.APIModels;
 using Damselfly.Core.Models;
 using Damselfly.Core.ScopedServices;
@@ -67,10 +67,10 @@ public class BasketController : ControllerBase
     {
         var basket = await _service.GetBasketById(basketId);
 
-        if ( basket == null )
+        if (basket == null)
             throw new ArgumentException("No such basket!");
 
-        foreach ( var be in basket.BasketEntries )
+        foreach (var be in basket.BasketEntries)
             be.Image = null;
 
         return basket;

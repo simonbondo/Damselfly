@@ -1,4 +1,4 @@
-﻿
+
 namespace Damselfly.Core.Constants;
 
 public enum SortOrderType

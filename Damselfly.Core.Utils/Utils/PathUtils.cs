@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 
 namespace Damselfly.Core.Utils;
 
@@ -12,7 +12,7 @@ public static class PathUtils
     /// <returns></returns>
     public static string MakePathRelativeTo(this string path, string root)
     {
-        if ( !root.EndsWith(Path.DirectorySeparatorChar) )
+        if (!root.EndsWith(Path.DirectorySeparatorChar))
             root += Path.DirectorySeparatorChar;
 
         var result = Path.GetRelativePath(root, path);

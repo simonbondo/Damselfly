@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.Constants;
+using Damselfly.Core.Constants;
 using Damselfly.Core.DbModels;
 using Damselfly.Core.ScopedServices.ClientServices;
 using Damselfly.Core.ScopedServices.Interfaces;
@@ -23,28 +23,28 @@ public class ClientSearchService : BaseSearchService, ISearchService
         _statusService = statusService;
     }
 
-    protected override async Task<SearchResponse> GetQueryImagesAsync( int count = DamselflyContants.PageSize)
+    protected override async Task<SearchResponse> GetQueryImagesAsync(int count = DamselflyContants.PageSize)
     {
         int first = SearchResults.Count;
         var response = new SearchResponse { MoreDataAvailable = false, SearchResults = new int[0] };
 
         try
         {
-            if ( first < SearchResults.Count() && first + count < SearchResults.Count() )
+            if (first < SearchResults.Count() && first + count < SearchResults.Count())
             {
                 // Data already loaded. Nothing to do.
                 return new SearchResponse { MoreDataAvailable = false, SearchResults = new int[0] };
             }
 
             // Calculate how many results we have already
-            if ( SearchResults.Count() >= first )
+            if (SearchResults.Count() >= first)
             {
                 var firstOffset = SearchResults.Count() - first;
                 first = SearchResults.Count();
                 count -= firstOffset;
             }
 
-            if ( count == 0 )
+            if (count == 0)
             {
                 // If we have exactly the right number of results,
                 // assume there's more to come
@@ -59,9 +59,9 @@ public class ClientSearchService : BaseSearchService, ISearchService
 
             response = await httpClient.CustomPostAsJsonAsync<SearchRequest, SearchResponse>("/api/search", request);
 
-            if ( response != null )
+            if (response != null)
             {
-                if ( response.SearchResults != null && response.SearchResults.Any() )
+                if (response.SearchResults != null && response.SearchResults.Any())
                 {
                     _searchResults.AddRange(response.SearchResults);
 
@@ -69,7 +69,7 @@ public class ClientSearchService : BaseSearchService, ISearchService
                 }
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             _logger.LogError($"Exception during search query API call: {ex}");
         }

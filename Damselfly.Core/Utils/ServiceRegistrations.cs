@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.Interfaces;
+using Damselfly.Core.Interfaces;
 using Damselfly.Core.ScopedServices;
 using Damselfly.Core.ScopedServices.Interfaces;
 using Damselfly.Core.Services;
@@ -73,7 +73,7 @@ public static class ServiceRegistrations
         services.AddSingleton<FileService>();
         services.AddSingleton<ServerStatusService>();
         services.AddSingleton<IStatusService>(x => x.GetRequiredService<ServerStatusService>());
-        services.AddSingleton<IFileService>( x => x.GetRequiredService<FileService>() );
+        services.AddSingleton<IFileService>(x => x.GetRequiredService<FileService>());
 
         services.AddSingleton<DownloadService>();
         services.AddSingleton<IDownloadService>(x => x.GetRequiredService<DownloadService>());

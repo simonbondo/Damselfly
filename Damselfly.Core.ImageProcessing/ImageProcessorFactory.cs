@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.Interfaces;
+using Damselfly.Core.Interfaces;
 
 namespace Damselfly.Core.ImageProcessing;
 
@@ -37,21 +37,21 @@ public class ImageProcessorFactory : IImageProcessorFactory
     /// <returns></returns>
     public IImageProcessor? GetProcessor(string fileExtension)
     {
-        if ( !fileExtension.StartsWith(".") ) fileExtension = $".{fileExtension}";
+        if (!fileExtension.StartsWith(".")) fileExtension = $".{fileExtension}";
 
         // Skiasharp first. As of 12-Aug-2021, it can do thumbs for 100 images in about 23 seconds
-        if ( SkiaSharpProcessor.SupportedFileExtensions.Any(x =>
-                x.Equals(fileExtension, StringComparison.OrdinalIgnoreCase)) ) return skiaProcessor;
+        if (SkiaSharpProcessor.SupportedFileExtensions.Any(x =>
+                x.Equals(fileExtension, StringComparison.OrdinalIgnoreCase))) return skiaProcessor;
 
         // ImageSharp next. As of 12-Aug-2021, it can do thumbs for 100 images in about 60 seconds
-        if ( ImageSharpProcessor.SupportedFileExtensions.Any(x =>
-                x.Equals(fileExtension, StringComparison.OrdinalIgnoreCase)) ) return isharpProcessor;
+        if (ImageSharpProcessor.SupportedFileExtensions.Any(x =>
+                x.Equals(fileExtension, StringComparison.OrdinalIgnoreCase))) return isharpProcessor;
 
         // ImageMagick last, because of the complexities of spawning a child process.
         // As of 12-Aug-2021, it can do thumbs for 100 images in about 33 seconds.
         // Main advantage: it can also handle HEIC
-        if ( ImageMagickProcessor.SupportedFileExtensions.Any(x =>
-                x.Equals(fileExtension, StringComparison.OrdinalIgnoreCase)) ) return imProcessor;
+        if (ImageMagickProcessor.SupportedFileExtensions.Any(x =>
+                x.Equals(fileExtension, StringComparison.OrdinalIgnoreCase))) return imProcessor;
 
         return null;
     }

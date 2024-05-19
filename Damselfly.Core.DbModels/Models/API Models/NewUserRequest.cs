@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Damselfly.Core.DbModels.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -18,11 +18,12 @@ public class UserResponse
     public bool Succeeded { get; init; }
     public ICollection<string> Errors { get; init; }
 
-    public UserResponse()   {
+    public UserResponse()
+    {
 
     }
 
-    public UserResponse( IdentityResult result )
+    public UserResponse(IdentityResult result)
     {
         Succeeded = result.Succeeded;
         Errors = result.Errors.Select(x => x.Description).ToList();

@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.DbModels.Models;
+using Damselfly.Core.DbModels.Models;
 using Damselfly.Core.DbModels.Models.APIModels;
 using Damselfly.Core.Models;
 using Damselfly.Core.ScopedServices.ClientServices;
@@ -26,7 +26,7 @@ public class ClientDownloadService : IDownloadService
 
         var response = await httpClient.CustomPostAsJsonAsync<DownloadRequest, DownloadResponse>("/api/download/images", request);
 
-        if( response != null )
+        if (response != null)
             return response.DownloadUrl;
 
         return null;

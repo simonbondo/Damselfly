@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Damselfly.Core.Constants;
 using Damselfly.Core.ScopedServices.Interfaces;
 using Damselfly.Core.Utils;
@@ -23,11 +23,11 @@ public class EmailSenderFactoryService : IEmailSender
 
         var useSmtp = configService.GetBool(ConfigSettings.UseSmtp);
 
-        if ( useSmtp )
+        if (useSmtp)
         {
             var smtp = new EmailSmtpService(configService);
 
-            if ( smtp.IsValid )
+            if (smtp.IsValid)
                 _senderInstance = smtp;
             else
                 Logging.LogError("SMTP email provider selected but no valid SMTP settings configured.");
@@ -36,7 +36,7 @@ public class EmailSenderFactoryService : IEmailSender
         {
             var sendGrid = new EmailSendGridService(configService);
 
-            if ( sendGrid.IsValid )
+            if (sendGrid.IsValid)
                 _senderInstance = sendGrid;
             else
                 Logging.LogError("SendGrid email provider selected but no valid SendGrid settings configured.");
@@ -45,7 +45,7 @@ public class EmailSenderFactoryService : IEmailSender
 
     public async Task SendEmailAsync(string email, string subject, string htmlMessage)
     {
-        if ( _senderInstance != null )
+        if (_senderInstance != null)
             await _senderInstance.SendEmailAsync(email, subject, htmlMessage);
     }
 }

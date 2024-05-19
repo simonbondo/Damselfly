@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.Constants;
+using Damselfly.Core.Constants;
 using Damselfly.Core.Models;
 using Damselfly.Core.ScopedServices.Interfaces;
 
@@ -61,23 +61,23 @@ public class NavigationService
         var navigationItems = new List<int>();
         int result = -1;
 
-        if ( Context == NavigationContexts.Basket )
+        if (Context == NavigationContexts.Basket)
             navigationItems.AddRange(_basketService.BasketImages.Select(x => x.ImageId));
-        else if ( Context == NavigationContexts.Search )
+        else if (Context == NavigationContexts.Search)
             navigationItems.AddRange(_searchService.SearchResults);
 
-        if ( CurrentImage != null && navigationItems != null )
+        if (CurrentImage != null && navigationItems != null)
         {
             var currentIndex = navigationItems.FindIndex(x => x == CurrentImage.ImageId);
 
-            if ( currentIndex != -1 )
+            if (currentIndex != -1)
             {
-                if ( next )
+                if (next)
                     currentIndex++;
                 else
                     currentIndex--;
 
-                if ( currentIndex < 0 )
+                if (currentIndex < 0)
                     currentIndex = navigationItems.Count - 1;
                 else
                     currentIndex = currentIndex % navigationItems.Count;
@@ -86,6 +86,6 @@ public class NavigationService
             }
         }
 
-        return Task.FromResult( result );
+        return Task.FromResult(result);
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,11 +17,11 @@ namespace Damselfly.Core.Database;
 /// </summary>
 public class ImageContext : BaseDBModel, IDataProtectionKeyContext
 {
-    public static ImageContext GetImageContext( IServiceScope scope )
+    public static ImageContext GetImageContext(IServiceScope scope)
     {
         var db = scope.ServiceProvider.GetService<ImageContext>();
-        if( db == null )
-            throw new Exception( "No DB found in scope factory" );
+        if (db == null)
+            throw new Exception("No DB found in scope factory");
 
         return db;
     }
@@ -58,12 +58,12 @@ public class ImageContext : BaseDBModel, IDataProtectionKeyContext
 
     protected override bool DBNeedsCleaning()
     {
-        bool needsUpdate = false; 
+        bool needsUpdate = false;
         const string settingName = "LastVacuum";
 
-        var lastClean = ConfigSettings.FirstOrDefault(x => x.Name == settingName );
+        var lastClean = ConfigSettings.FirstOrDefault(x => x.Name == settingName);
 
-        if( lastClean != null )
+        if (lastClean != null)
         {
             if (DateTime.TryParseExact(lastClean.Value, "dd-MMM-yyyy",
                     System.Globalization.CultureInfo.InvariantCulture,
@@ -85,7 +85,7 @@ public class ImageContext : BaseDBModel, IDataProtectionKeyContext
             needsUpdate = true;
         }
 
-        if( needsUpdate )
+        if (needsUpdate)
         {
             // Update the last-optimised date in the DB to indicate we did it this time.
             ConfigSettings.Update(lastClean);
@@ -144,16 +144,16 @@ public class ImageContext : BaseDBModel, IDataProtectionKeyContext
             .HasForeignKey<ImageMetaData>(i => i.ImageId);
 
         modelBuilder.Entity<Image>()
-            .HasOne( img => img.Transforms )
-            .WithOne( transform => transform.Image )
-            .HasForeignKey<Transformations>( i => i.ImageId );
+            .HasOne(img => img.Transforms)
+            .WithOne(transform => transform.Image)
+            .HasForeignKey<Transformations>(i => i.ImageId);
 
         modelBuilder.Entity<Folder>()
             .HasMany(x => x.Children)
             .WithOne(x => x.Parent)
             .IsRequired(false)
             .OnDelete(DeleteBehavior.Restrict);
-        
+
         // A person has none or many face data points
         modelBuilder.Entity<PersonFaceData>()
             .HasOne(p => p.Person)
@@ -174,8 +174,8 @@ public class ImageContext : BaseDBModel, IDataProtectionKeyContext
 
         modelBuilder.Entity<ImageObject>().HasIndex(x => x.ImageId);
         modelBuilder.Entity<ImageObject>().HasIndex(x => x.PersonId);
-        modelBuilder.Entity<ImageObject>().HasIndex(x => new { x.ImageId, x.PersonId});
-        
+        modelBuilder.Entity<ImageObject>().HasIndex(x => new { x.ImageId, x.PersonId });
+
         modelBuilder.Entity<ImageMetaData>().HasIndex(x => x.ImageId);
         modelBuilder.Entity<ImageMetaData>().HasIndex(x => x.DateTaken);
         modelBuilder.Entity<ImageMetaData>().HasIndex(x => x.ThumbLastUpdated);
@@ -187,7 +187,7 @@ public class ImageContext : BaseDBModel, IDataProtectionKeyContext
         modelBuilder.Entity<BasketEntry>().HasIndex(x => new { x.ImageId, x.BasketId }).IsUnique();
         modelBuilder.Entity<Hash>().HasIndex(x => x.MD5ImageHash);
         modelBuilder.Entity<Hash>().HasIndex(x => new
-            { x.PerceptualHex1, x.PerceptualHex2, x.PerceptualHex3, x.PerceptualHex4 });
+        { x.PerceptualHex1, x.PerceptualHex2, x.PerceptualHex3, x.PerceptualHex4 });
         modelBuilder.Entity<Models.ImageClassification>().HasIndex(x => new { x.Label }).IsUnique();
 
         RoleDefinitions.OnModelCreating(modelBuilder);
@@ -214,7 +214,7 @@ public class ImageContext : BaseDBModel, IDataProtectionKeyContext
         {
             return await db.Database.ExecuteSqlRawAsync(sql);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"Exception updating Metadata Field {updateField}: {ex.Message}");
             return 0;

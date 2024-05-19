@@ -27,16 +27,16 @@ public class ForgotPasswordModel : PageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
-        if ( ModelState.IsValid )
+        if (ModelState.IsValid)
         {
             var user = await _userManager.FindByEmailAsync(Input.Email);
             var emailConfirmed = await _userManager.IsEmailConfirmedAsync(user);
 
             // TODO: Hack
-            if ( !emailConfirmed )
+            if (!emailConfirmed)
                 emailConfirmed = true;
 
-            if ( user == null || !emailConfirmed )
+            if (user == null || !emailConfirmed)
                 // Don't reveal that the user does not exist or is not confirmed
                 return RedirectToPage("./ForgotPasswordConfirmation");
 
@@ -63,6 +63,6 @@ public class ForgotPasswordModel : PageModel
 
     public class InputModel
     {
-        [Required] [EmailAddress] public string Email { get; set; }
+        [Required][EmailAddress] public string Email { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -30,7 +30,7 @@ namespace Damselfly.Core.Services;
 
 public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanProvider
 {
-    private static readonly DateTime NoMetadataDate = new DateTime(1970,01,01,00,00,00);
+    private static readonly DateTime NoMetadataDate = new DateTime(1970, 01, 01, 00, 00, 00);
     private readonly ConfigService _configService;
     private readonly ExifService _exifService;
     private readonly ImageCache _imageCache;
@@ -103,7 +103,7 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
         var updated =
             await ImageContext.UpdateMetadataFields(db, folderId, "LastUpdated", $"'{NoMetadataDate:yyyy-MM-dd HH:mm:ss}'");
 
-        if ( updated != 0 )
+        if (updated != 0)
             _statusService.UpdateStatus($"{updated} images in folder flagged for Metadata scanning.");
 
         _workService.FlagNewJobs(this);
@@ -157,7 +157,7 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
         var searchText = text.Trim();
 
         // Only query the DB if we have more than 2 chars.
-        if ( searchText.Length > 1 )
+        if (searchText.Length > 1)
         {
             // We include any keyword that contains the search term - but exclude 
             // the actual search term, as we'll add it explicitly at the top of the list.
@@ -165,7 +165,7 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
                 .Where(x => x.Keyword.Contains(searchText, StringComparison.OrdinalIgnoreCase)
                             && !x.Keyword.Equals(searchText, StringComparison.OrdinalIgnoreCase))
                 // The closer to the start of the text, the earlier in the list
-                .OrderBy( x => x.Keyword.IndexOf( text, StringComparison.OrdinalIgnoreCase ) ) 
+                .OrderBy(x => x.Keyword.IndexOf(text, StringComparison.OrdinalIgnoreCase))
                 .OrderBy(x => x.Favourite ? 0 : 1) // Favourites first
                 .ThenBy(x => x.Keyword) // Then order alphabetically
                 .Take(30); // Don't go mad with the number we return
@@ -185,7 +185,7 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
 
         _workService.AddJobSource(this);
     }
-    
+
     /// <summary>
     ///     Read the metadata, and handle any exceptions.
     /// </summary>
@@ -197,16 +197,16 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
 
         IReadOnlyList<Directory> metadata = null;
 
-        if ( File.Exists(imagePath) )
+        if (File.Exists(imagePath))
             try
             {
                 metadata = ImageMetadataReader.ReadMetadata(imagePath);
             }
-            catch ( ImageProcessingException ex )
+            catch (ImageProcessingException ex)
             {
                 Logging.Log("Metadata read for image {0}: {1}", imagePath, ex.Message);
             }
-            catch ( IOException ex )
+            catch (IOException ex)
             {
                 Logging.Log("File error reading metadata for {0}: {1}", imagePath, ex.Message);
             }
@@ -216,20 +216,20 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
         return metadata;
     }
 
-    private string? GetXMPFieldValue( Dictionary<string, string> kvps, string prefix )
+    private string? GetXMPFieldValue(Dictionary<string, string> kvps, string prefix)
     {
-        if( kvps.TryGetValue( prefix, out var result ) && ! string.IsNullOrEmpty(result))
+        if (kvps.TryGetValue(prefix, out var result) && !string.IsNullOrEmpty(result))
             return result;
-        
-        var possibilities = Enumerable.Range(1, 5).Select( n => $"{prefix}[{n}]");
-        
-        foreach( var key in possibilities )
-            if( kvps.TryGetValue( key, out var indexed ) && ! string.IsNullOrEmpty(indexed) )
+
+        var possibilities = Enumerable.Range(1, 5).Select(n => $"{prefix}[{n}]");
+
+        foreach (var key in possibilities)
+            if (kvps.TryGetValue(key, out var indexed) && !string.IsNullOrEmpty(indexed))
                 return indexed;
 
         return null;
     }
-    
+
     /// <summary>
     ///     Pull out the XMP attributes
     /// </summary>
@@ -243,25 +243,25 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
                 .Where(x => !string.IsNullOrEmpty(x.Path))
                 .ToDictionary(x => x.Path, y => y.Value, StringComparer.OrdinalIgnoreCase);
 
-            if( image.MetaData.DateTaken == DateTime.MinValue )
+            if (image.MetaData.DateTaken == DateTime.MinValue)
             {
-                if( nvps.ContainsKey("exif:DateTimeOriginal") && DateTime.TryParse(nvps["exif:DateTimeOriginal"], out var dateTime) )
+                if (nvps.ContainsKey("exif:DateTimeOriginal") && DateTime.TryParse(nvps["exif:DateTimeOriginal"], out var dateTime))
                     image.MetaData.DateTaken = dateTime;
             }
 
-            if( string.IsNullOrEmpty(image.MetaData.Description) )
-                image.MetaData.Description = GetXMPFieldValue( nvps, "dc:Description" );
+            if (string.IsNullOrEmpty(image.MetaData.Description))
+                image.MetaData.Description = GetXMPFieldValue(nvps, "dc:Description");
 
-            if( string.IsNullOrEmpty(image.MetaData.Caption) )
-                image.MetaData.Caption = GetXMPFieldValue( nvps, "dc:Caption" );
+            if (string.IsNullOrEmpty(image.MetaData.Caption))
+                image.MetaData.Caption = GetXMPFieldValue(nvps, "dc:Caption");
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"Exception while parsing XMP face/region data: {ex}");
         }
     }
 
-    
+
     /// <summary>
     ///     Pull out the XMP face area so we can convert it to a real face in the DB
     /// </summary>
@@ -280,14 +280,14 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
             var iRegion = 0;
             var (flipH, flipV, switchOrient) = FlipHorizVert(orientation);
 
-            while ( true )
+            while (true)
             {
                 iRegion++;
 
                 var regionBase = $"mwg-rs:Regions/mwg-rs:RegionList[{iRegion}]/mwg-rs:";
 
                 // Check if there's a name for the next region. If not, we've probably done them all
-                if ( !nvps.ContainsKey($"{regionBase}Name") )
+                if (!nvps.ContainsKey($"{regionBase}Name"))
                     break;
 
                 var name = nvps[$"{regionBase}Name"];
@@ -302,17 +302,17 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
                 var w = Convert.ToDouble(wStr);
                 var h = Convert.ToDouble(hStr);
 
-                if ( switchOrient )
+                if (switchOrient)
                 {
                     var xTemp = y;
                     y = x;
                     x = xTemp;
                 }
 
-                if ( flipH )
+                if (flipH)
                     x = 1 - x;
 
-                if ( flipV )
+                if (flipV)
                     y = 1 - y;
 
                 var newPerson = new Person
@@ -344,7 +344,7 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
 
             return newFaces;
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"Exception while parsing XMP face/region data: {ex}");
         }
@@ -372,33 +372,33 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
         {
             var metadata = SafeReadImageMetadata(image.FullPath);
 
-            if ( metadata != null )
+            if (metadata != null)
             {
                 // We've read some EXIF data, so clear out the existing metadata to replace it
                 imgMetaData.Clear();
-                
+
                 metaDataReadSuccess = true;
-                
+
                 var subIfdDirectory = metadata.OfType<ExifSubIfdDirectory>().FirstOrDefault();
 
-                if ( subIfdDirectory != null )
+                if (subIfdDirectory != null)
                 {
                     imgMetaData.DateTaken = subIfdDirectory.SafeGetExifDateTime(ExifDirectoryBase.TagDateTimeDigitized);
 
-                    if ( imgMetaData.DateTaken == DateTime.MinValue )
+                    if (imgMetaData.DateTaken == DateTime.MinValue)
                         imgMetaData.DateTaken =
                             subIfdDirectory.SafeGetExifDateTime(ExifDirectoryBase.TagDateTimeOriginal);
 
-                    if ( imgMetaData.DateTaken == DateTime.MinValue )
+                    if (imgMetaData.DateTaken == DateTime.MinValue)
                         imgMetaData.DateTaken =
                             subIfdDirectory.SafeGetExifDateTime(ExifDirectoryBase.TagDateTime);
-                    
+
                     imgMetaData.Height = subIfdDirectory.SafeGetExifInt(ExifDirectoryBase.TagExifImageHeight);
                     imgMetaData.Width = subIfdDirectory.SafeGetExifInt(ExifDirectoryBase.TagExifImageWidth);
 
-                    if ( imgMetaData.Width == 0 )
+                    if (imgMetaData.Width == 0)
                         imgMetaData.Width = subIfdDirectory.SafeGetExifInt(ExifDirectoryBase.TagImageWidth);
-                    if ( imgMetaData.Height == 0 )
+                    if (imgMetaData.Height == 0)
                         imgMetaData.Height = subIfdDirectory.SafeGetExifInt(ExifDirectoryBase.TagImageHeight);
 
                     imgMetaData.ISO = subIfdDirectory.SafeExifGetString(ExifDirectoryBase.TagIsoEquivalent);
@@ -413,18 +413,18 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
                     // If there was no lens make/model, it may be because it's in the Makernotes. So attempt
                     // to extract it. This code definitely works for a Leica Panasonic lens on a Panasonic body.
                     // It may not work for other things.
-                    if ( string.IsNullOrEmpty(lensMake) || string.IsNullOrEmpty(lensModel) )
+                    if (string.IsNullOrEmpty(lensMake) || string.IsNullOrEmpty(lensModel))
                     {
                         var makerNoteDir = metadata.FirstOrDefault(x =>
                             x.Name.Contains("Makernote", StringComparison.OrdinalIgnoreCase));
-                        if ( makerNoteDir != null )
-                            if ( string.IsNullOrEmpty(lensModel) )
+                        if (makerNoteDir != null)
+                            if (string.IsNullOrEmpty(lensModel))
                                 lensModel = makerNoteDir.SafeExifGetString("Lens Type");
                     }
 
-                    if ( !string.IsNullOrEmpty(lensMake) || !string.IsNullOrEmpty(lensModel) )
+                    if (!string.IsNullOrEmpty(lensMake) || !string.IsNullOrEmpty(lensModel))
                     {
-                        if ( string.IsNullOrEmpty(lensModel) || lensModel == "N/A" )
+                        if (string.IsNullOrEmpty(lensModel) || lensModel == "N/A")
                             lensModel = "Generic " + lensMake;
 
                         imgMetaData.LensId = GetLens(lensMake, lensModel, lensSerial).LensId;
@@ -437,21 +437,21 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
 
                 var jpegDirectory = metadata.OfType<JpegDirectory>().FirstOrDefault();
 
-                if ( jpegDirectory != null )
+                if (jpegDirectory != null)
                 {
-                    if ( imgMetaData.Width == 0 )
+                    if (imgMetaData.Width == 0)
                         imgMetaData.Width = jpegDirectory.SafeGetExifInt(JpegDirectory.TagImageWidth);
-                    if ( imgMetaData.Height == 0 )
+                    if (imgMetaData.Height == 0)
                         imgMetaData.Height = jpegDirectory.SafeGetExifInt(JpegDirectory.TagImageHeight);
                 }
 
                 var gpsDirectory = metadata.OfType<GpsDirectory>().FirstOrDefault();
 
-                if ( gpsDirectory != null )
+                if (gpsDirectory != null)
                 {
                     var location = gpsDirectory.GetGeoLocation();
 
-                    if ( location != null )
+                    if (location != null)
                     {
                         imgMetaData.Longitude = location.Longitude;
                         imgMetaData.Latitude = location.Latitude;
@@ -461,15 +461,15 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
                 var orientation = "1"; // Default
                 var IfdDirectory = metadata.OfType<ExifIfd0Directory>().FirstOrDefault();
 
-                if ( IfdDirectory != null )
+                if (IfdDirectory != null)
                 {
 
-                    if ( imgMetaData.Width == 0 )
+                    if (imgMetaData.Width == 0)
                         imgMetaData.Width = IfdDirectory.SafeGetExifInt(ExifDirectoryBase.TagImageWidth);
-                    if ( imgMetaData.Height == 0 )
+                    if (imgMetaData.Height == 0)
                         imgMetaData.Height = IfdDirectory.SafeGetExifInt(ExifDirectoryBase.TagImageHeight);
 
-                    if ( imgMetaData.DateTaken == DateTime.MinValue )
+                    if (imgMetaData.DateTaken == DateTime.MinValue)
                         imgMetaData.DateTaken =
                             IfdDirectory.SafeGetExifDateTime(ExifDirectoryBase.TagDateTime);
 
@@ -484,10 +484,10 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
                     var camSerial = IfdDirectory.SafeExifGetString(ExifDirectoryBase.TagBodySerialNumber);
                     imgMetaData.Rating = IfdDirectory.SafeGetExifInt(ExifDirectoryBase.TagRating);
 
-                    if ( !string.IsNullOrEmpty(camMake) || !string.IsNullOrEmpty(camModel) )
+                    if (!string.IsNullOrEmpty(camMake) || !string.IsNullOrEmpty(camModel))
                         imgMetaData.CameraId = GetCamera(camMake, camModel, camSerial).CameraId;
 
-                    if ( NeedToSwitchWidthAndHeight(orientation) )
+                    if (NeedToSwitchWidthAndHeight(orientation))
                     {
                         // It's orientated rotated. So switch the height and width
                         var temp = imgMetaData.Width;
@@ -498,23 +498,23 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
 
                 var IPTCdir = metadata.OfType<IptcDirectory>().FirstOrDefault();
 
-                if ( IPTCdir != null )
+                if (IPTCdir != null)
                 {
                     var caption = IPTCdir.SafeExifGetString(IptcDirectory.TagCaption).SafeTrim();
                     var byline = IPTCdir.SafeExifGetString(IptcDirectory.TagByLine).SafeTrim();
                     var source = IPTCdir.SafeExifGetString(IptcDirectory.TagSource).SafeTrim();
 
                     imgMetaData.Caption = FilteredDescription(caption);
-                    if ( !string.IsNullOrEmpty(imgMetaData.Copyright) )
+                    if (!string.IsNullOrEmpty(imgMetaData.Copyright))
                         imgMetaData.Copyright = IPTCdir.SafeExifGetString(IptcDirectory.TagCopyrightNotice).SafeTrim();
                     imgMetaData.Credit = IPTCdir.SafeExifGetString(IptcDirectory.TagCredit).SafeTrim();
 
-                    if ( string.IsNullOrEmpty(imgMetaData.Credit) && !string.IsNullOrEmpty(source) )
+                    if (string.IsNullOrEmpty(imgMetaData.Credit) && !string.IsNullOrEmpty(source))
                         imgMetaData.Credit = source;
 
-                    if ( !string.IsNullOrEmpty(byline) )
+                    if (!string.IsNullOrEmpty(byline))
                     {
-                        if ( !string.IsNullOrEmpty(imgMetaData.Credit) )
+                        if (!string.IsNullOrEmpty(imgMetaData.Credit))
                             imgMetaData.Credit += $" ({byline})";
                         else
                             imgMetaData.Credit += $"{byline}";
@@ -522,28 +522,28 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
 
                     // Stash the keywords in the dict, they'll be stored later.
                     var keywordList = IPTCdir?.GetStringArray(IptcDirectory.TagKeywords);
-                    if ( keywordList != null )
+                    if (keywordList != null)
                         keywords = keywordList;
                 }
 
                 var psDirectory = metadata.OfType<PhotoshopDirectory>().FirstOrDefault();
-                if ( psDirectory != null )
+                if (psDirectory != null)
                 {
                     // TODO
                 }
 
                 var pngDirectory = metadata.OfType<PngDirectory>().FirstOrDefault();
-                if ( pngDirectory != null )
+                if (pngDirectory != null)
                 {
-                    if ( imgMetaData.Width == 0 )
+                    if (imgMetaData.Width == 0)
                         imgMetaData.Width = pngDirectory.SafeGetExifInt(PngDirectory.TagImageWidth);
-                    if ( imgMetaData.Height == 0 )
+                    if (imgMetaData.Height == 0)
                         imgMetaData.Height = pngDirectory.SafeGetExifInt(PngDirectory.TagImageHeight);
                 }
 
                 var xmpDirectory = metadata.OfType<XmpDirectory>().FirstOrDefault();
 
-                if ( xmpDirectory != null && xmpDirectory.XmpMeta != null )
+                if (xmpDirectory != null && xmpDirectory.XmpMeta != null)
                 {
                     ReadXMPData(xmpDirectory, image);
                     // Read the face data too
@@ -551,21 +551,21 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
                 }
             }
 
-            if ( imgMetaData.Width != 0 && imgMetaData.Height != 0 )
+            if (imgMetaData.Width != 0 && imgMetaData.Height != 0)
                 imgMetaData.AspectRatio = imgMetaData.Width / (double)imgMetaData.Height;
 
             var keywordsSummary = keywords.Any() ? $", found {keywords.Count()} keywords." : string.Empty;
             Logging.Log($"Read metadata for {image.FullPath} (ID: {image.ImageId}) {keywordsSummary}");
 
             // TODO Fix weirdness with EF8 migration which didn't work from a migrations perspective
-            if( string.IsNullOrEmpty( imgMetaData.Copyright ) ) imgMetaData.Copyright = string.Empty;
-            if( string.IsNullOrEmpty( imgMetaData.Caption ) ) imgMetaData.Caption = string.Empty;
-            if( string.IsNullOrEmpty( imgMetaData.Credit ) ) imgMetaData.Credit = string.Empty;
-            if( string.IsNullOrEmpty( imgMetaData.Description ) ) imgMetaData.Description = string.Empty;
-            
-            DumpMetaData( image, metadata);
+            if (string.IsNullOrEmpty(imgMetaData.Copyright)) imgMetaData.Copyright = string.Empty;
+            if (string.IsNullOrEmpty(imgMetaData.Caption)) imgMetaData.Caption = string.Empty;
+            if (string.IsNullOrEmpty(imgMetaData.Credit)) imgMetaData.Credit = string.Empty;
+            if (string.IsNullOrEmpty(imgMetaData.Description)) imgMetaData.Description = string.Empty;
+
+            DumpMetaData(image, metadata);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.Log("Error reading image metadata for {0}: {1}", image.FullPath, ex.Message);
             metaDataReadSuccess = false;
@@ -576,10 +576,10 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
 
     private string FilteredDescription(string desc)
     {
-        if ( !string.IsNullOrEmpty(desc) )
+        if (!string.IsNullOrEmpty(desc))
             // No point clogging up the DB with thousands
             // of identical default descriptions
-            if ( desc.Trim().Equals("OLYMPUS DIGITAL CAMERA") )
+            if (desc.Trim().Equals("OLYMPUS DIGITAL CAMERA"))
                 return string.Empty;
 
         return desc;
@@ -608,13 +608,13 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
         var img = await _imageCache.GetCachedImage(imageId);
 
         db.Attach(img);
-        
+
         try
         {
             var lastWriteTime = File.GetLastWriteTimeUtc(img.FullPath);
 
-            if( lastWriteTime < DateTime.UtcNow.AddMinutes( 1 ) &&
-                      lastWriteTime > DateTime.UtcNow.AddSeconds(-10) )
+            if (lastWriteTime < DateTime.UtcNow.AddMinutes(1) &&
+                      lastWriteTime > DateTime.UtcNow.AddSeconds(-10))
             {
                 // If the last-write time is within 30s of now, but it's not a time far in the future
                 // we skip it, as it's possible it might still be mid-copy.
@@ -625,7 +625,7 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
 
             var imgMetaData = img.MetaData;
 
-            if ( imgMetaData == null )
+            if (imgMetaData == null)
             {
                 imgMetaData = new ImageMetaData { ImageId = img.ImageId, Image = img };
                 img.MetaData = imgMetaData;
@@ -640,7 +640,7 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
             imgMetaData.LastUpdated = updateTimeStamp;
 
             // Scan the image from the 
-            if ( GetImageMetaData(ref imgMetaData, out var exifKeywords, out xmpFaces) )
+            if (GetImageMetaData(ref imgMetaData, out var exifKeywords, out xmpFaces))
             {
                 // Scan for sidecar files
                 sideCarTags = GetSideCarKeywords(img, exifKeywords, writeSideCarTagsToImages);
@@ -648,12 +648,12 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
                 imageKeywords = sideCarTags.Union(exifKeywords, StringComparer.OrdinalIgnoreCase).ToList();
             }
 
-            if ( imgMetaData.DateTaken != img.SortDate )
+            if (imgMetaData.DateTaken != img.SortDate)
             {
                 Logging.LogTrace($"Updating image {img.FileName} with DateTaken: {imgMetaData.DateTaken}.");
                 // Always update the image sort date with the date taken,
                 // if one was found in the metadata
-                if ( imgMetaData.DateTaken > DateTime.MinValue )
+                if (imgMetaData.DateTaken > DateTime.MinValue)
                     // Don't update the date to date taken if the one there isn't valid
                     img.SortDate = imgMetaData.DateTaken;
 
@@ -662,11 +662,11 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
             }
             else
             {
-                if ( imgMetaData.DateTaken == DateTime.MinValue )
+                if (imgMetaData.DateTaken == DateTime.MinValue)
                     Logging.LogTrace($"Not updating image {img.FileName} with DateTaken as no valid value.");
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"Exception caught during metadata scan for {img.FullPath}: {ex.Message}.");
         }
@@ -675,7 +675,7 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
             // Ensure we update the timestamp for the item
             var changesSaved = await db.SaveChangesAsync("ImageMetaDataSave");
 
-            if ( changesSaved == 0 )
+            if (changesSaved == 0)
                 Logging.LogVerbose($"No changes saved after metadata scan for image {img.ImageId}");
         }
 
@@ -688,7 +688,7 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
 
         watch.Stop();
 
-        if ( sideCarTags.Any() && writeSideCarTagsToImages )
+        if (sideCarTags.Any() && writeSideCarTagsToImages)
         {
             // If we've enabled the option to write any sidecar keywords to IPTC
             // keywords if they're missing in the EXIF data of the image submit
@@ -707,7 +707,7 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
     /// <returns></returns>
     private async Task WriteXMPFaces(Image image, List<ImageObject> xmpFaces)
     {
-        if ( xmpFaces != null && xmpFaces.Any() )
+        if (xmpFaces != null && xmpFaces.Any())
             try
             {
                 var createdTags = await CreateTagsFromStrings(new[] { "Face" });
@@ -723,11 +723,11 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
                 var peopleLookup = db.People.Where(x => names.Contains(x.Name))
                     .ToDictionary(x => x.Name, y => y.PersonId);
 
-                foreach ( var xmpFace in xmpFaces )
+                foreach (var xmpFace in xmpFaces)
                 {
                     xmpFace.TagId = faceTag.TagId;
 
-                    if ( peopleLookup.TryGetValue(xmpFace.Person.Name, out var matchedPersonId) )
+                    if (peopleLookup.TryGetValue(xmpFace.Person.Name, out var matchedPersonId))
                     {
                         xmpFace.Person = null;
                         xmpFace.PersonId = matchedPersonId;
@@ -744,7 +744,7 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
                 // TODO - check for existing rects/faces and replace
                 await db.SaveChangesAsync("SaveFacesMetaData");
             }
-            catch ( Exception ex )
+            catch (Exception ex)
             {
                 Logging.LogError($"Exception while processing XMP faces: {ex}");
             }
@@ -763,7 +763,7 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
         var tagsAdded = 0;
         var watch = new Stopwatch("WriteTagsForImage");
 
-        if ( BaseDBModel.ReadOnly )
+        if (BaseDBModel.ReadOnly)
             return tagsAdded;
 
         try
@@ -772,7 +772,7 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
             // they're in the cache. If not, create them in the DB.
             await CreateTagsFromStrings(imageKeywords);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError("Exception adding Tags: {0}", ex);
         }
@@ -785,10 +785,10 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
         {
             // Create the new tag objects, pulling the tags from the cache
             var newImageTags = imageKeywords.Select(keyword => new ImageTag
-                {
-                    ImageId = image.ImageId,
-                    TagId = _tagCache[keyword].TagId
-                })
+            {
+                ImageId = image.ImageId,
+                TagId = _tagCache[keyword].TagId
+            })
                 .ToList();
 
             Logging.LogTrace($"Updating {newImageTags.Count()} ImageTags");
@@ -800,25 +800,25 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
             var toDelete = existingImageTagIds.Where(id => !newImageTags.Select(x => x.TagId).Contains(id)).ToList();
             var toAdd = newImageTags.Where(x => !existingImageTagIds.Contains(x.TagId)).ToList();
 
-            if ( toDelete.Any() )
+            if (toDelete.Any())
             {
                 var delWatch = new Stopwatch("AddTagsDelete");
                 await db.BatchDelete(db.ImageTags.Where(y => y.ImageId == image.ImageId && toDelete.Contains(y.TagId)));
                 delWatch.Stop();
             }
 
-            if ( toAdd.Any() )
+            if (toAdd.Any())
             {
                 var addWatch = new Stopwatch("AddTagsInsert");
                 await db.BulkInsert(db.ImageTags, toAdd);
-                
+
                 addWatch.Stop();
             }
 
             await transaction.CommitAsync();
             tagsAdded = newImageTags.Count;
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError("Exception adding ImageTags: {0}", ex);
             await transaction.RollbackAsync();
@@ -847,7 +847,7 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
 
         var sidecar = img.GetSideCar();
 
-        if ( sidecar != null )
+        if (sidecar != null)
         {
             // We need to be really careful here, to discount unicode-encoding differences, because otherwise
             // we get into an infinite loop where we write one string to the KeywordOperations table, it gets
@@ -861,7 +861,7 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
                 .Except(imageKeywords, StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
-            if ( missingKeywords.Any() )
+            if (missingKeywords.Any())
             {
                 var messagePredicate = tagsWillBeWritten ? "" : "not ";
                 // Only write this log entry if we're actually going to write sidecar files.
@@ -948,25 +948,25 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
     /// <param name="metadata"></param>
     private void DumpMetaData(Image img, IReadOnlyList<Directory> metadata)
     {
-        if ( !Debugger.IsAttached )
+        if (!Debugger.IsAttached)
             return;
 
         Logging.Log($"Metadata dump for: {img.FileName}:");
-        foreach ( var dir in metadata )
+        foreach (var dir in metadata)
         {
             Logging.Log($" Directory: {dir.Name}:");
 
             var xmpDirectory = dir as XmpDirectory;
 
-            if( xmpDirectory != null && xmpDirectory.XmpMeta != null )
+            if (xmpDirectory != null && xmpDirectory.XmpMeta != null)
             {
-                foreach ( var property in xmpDirectory.XmpMeta.Properties )
-                    if ( !string.IsNullOrEmpty(property.Value) )
+                foreach (var property in xmpDirectory.XmpMeta.Properties)
+                    if (!string.IsNullOrEmpty(property.Value))
                         Logging.Log($"  Tag: {property.Path} = {property.Value}");
             }
             else
             {
-                foreach ( var tag in dir.Tags ) 
+                foreach (var tag in dir.Tags)
                     Logging.Log($"  Tag: {tag.Name} = {tag.Description}");
             }
         }
@@ -996,7 +996,7 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
 
     private void InitCameraAndLensCaches()
     {
-        if ( _lensCache == null )
+        if (_lensCache == null)
         {
             using var scope = _scopeFactory.CreateScope();
             using var db = scope.ServiceProvider.GetService<ImageContext>();
@@ -1006,7 +1006,7 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
                 .ToDictionary(x => x.Make + x.Model, y => y));
         }
 
-        if ( _cameraCache == null )
+        if (_cameraCache == null)
         {
             using var scope = _scopeFactory.CreateScope();
             using var db = scope.ServiceProvider.GetService<ImageContext>();
@@ -1027,10 +1027,10 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
     {
         var cacheKey = make + model;
 
-        if ( string.IsNullOrEmpty(cacheKey) )
+        if (string.IsNullOrEmpty(cacheKey))
             return null;
 
-        if ( !_cameraCache.TryGetValue(cacheKey, out var cam) )
+        if (!_cameraCache.TryGetValue(cacheKey, out var cam))
         {
             // It's a new one.
             cam = new Camera { Make = make, Model = model, Serial = serial };
@@ -1057,10 +1057,10 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
     {
         var cacheKey = make + model;
 
-        if ( string.IsNullOrEmpty(cacheKey) )
+        if (string.IsNullOrEmpty(cacheKey))
             return null;
 
-        if ( !_lensCache.TryGetValue(cacheKey, out var lens) )
+        if (!_lensCache.TryGetValue(cacheKey, out var lens))
         {
             // It's a new one.
             lens = new Lens { Make = make, Model = model, Serial = serial };
@@ -1085,7 +1085,7 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
     {
         try
         {
-            if ( _tagCache == null || force )
+            if (_tagCache == null || force)
             {
                 var watch = new Stopwatch("LoadTagCache");
 
@@ -1096,13 +1096,13 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
                 _tagCache = new ConcurrentDictionary<string, Tag>(db.Tags
                     .AsNoTracking()
                     .ToDictionary(k => k.Keyword, v => v));
-                if ( _tagCache.Any() )
+                if (_tagCache.Any())
                     Logging.LogTrace("Pre-loaded cach with {0} tags.", _tagCache.Count());
 
                 watch.Stop();
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"Unexpected exception loading tag cache: {ex.Message}");
         }
@@ -1145,7 +1145,7 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
             .ToList();
 
 
-        if ( newTags.Any() )
+        if (newTags.Any())
         {
             Logging.LogTrace("Adding {0} tags", newTags.Count());
 
@@ -1171,11 +1171,11 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
 
         var jpegDirectory = metadata.OfType<JpegDirectory>().FirstOrDefault();
 
-        if ( jpegDirectory != null )
+        if (jpegDirectory != null)
         {
             width = jpegDirectory.SafeGetExifInt(JpegDirectory.TagImageWidth);
             height = jpegDirectory.SafeGetExifInt(JpegDirectory.TagImageHeight);
-            if ( width == 0 || height == 0 )
+            if (width == 0 || height == 0)
             {
                 var subIfdDirectory = metadata.OfType<ExifSubIfdDirectory>().FirstOrDefault();
 

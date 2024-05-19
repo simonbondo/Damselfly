@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.Constants;
+using Damselfly.Core.Constants;
 using Damselfly.Core.Interfaces;
 using Humanizer;
 

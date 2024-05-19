@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using Humanizer;
 
 namespace Damselfly.Core.Models;
@@ -57,18 +57,18 @@ public class ImageObject
     {
         var ret = "Unidentified Object";
 
-        if ( IsFace )
+        if (IsFace)
         {
-            if ( Person != null && Person.Name != "Unknown" )
+            if (Person != null && Person.Name != "Unknown")
                 return $"{Person.Name.Transform(To.TitleCase)}";
             ret = "Unidentified face";
         }
-        else if ( Type == ObjectTypes.Object.ToString() && Tag != null )
+        else if (Type == ObjectTypes.Object.ToString() && Tag != null)
         {
             ret = $"{Tag.Keyword.Transform(To.SentenceCase)}";
         }
 
-        if ( includeScore && Score > 0 ) ret += $" ({Score:P0})";
+        if (includeScore && Score > 0) ret += $" ({Score:P0})";
 
         return ret;
     }

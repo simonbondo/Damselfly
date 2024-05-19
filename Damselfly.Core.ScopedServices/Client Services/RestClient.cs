@@ -1,4 +1,4 @@
-﻿using System.Net.Http.Headers;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -51,20 +51,20 @@ public class RestClient
 
     private Exception GetRestException(Exception ex, string requestUrl)
     {
-        if(ex is HttpRequestException )
+        if (ex is HttpRequestException)
         {
-            _logger.LogWarning( $"HTTP Exception: {ex.Message} ({requestUrl})" );
+            _logger.LogWarning($"HTTP Exception: {ex.Message} ({requestUrl})");
         }
-        if( ex is JsonException )
+        if (ex is JsonException)
         {
-            if ( ex.Message.Contains("'<' is an invalid start of a value") )
+            if (ex.Message.Contains("'<' is an invalid start of a value"))
                 return new ArgumentException($"Possible 404 / Page Not Found exception for {requestUrl}", ex);
-            if ( ex.Message.Contains("A possible object cycle") )
+            if (ex.Message.Contains("A possible object cycle"))
                 return new ArgumentException($"Object cycle exception for {requestUrl}", ex);
         }
 
-        if( ex.InnerException != null )
-            _logger.LogWarning( $"  Inner Exception: {ex.InnerException.Message}" );
+        if (ex.InnerException != null)
+            _logger.LogWarning($"  Inner Exception: {ex.InnerException.Message}");
 
         return ex;
     }
@@ -75,7 +75,7 @@ public class RestClient
         {
             return await _restClient.GetFromJsonAsync<T>(requestUri, JsonOptions);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             throw GetRestException(ex, requestUri);
         }
@@ -89,7 +89,7 @@ public class RestClient
             msg.EnsureSuccessStatusCode();
             return msg;
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             throw GetRestException(ex, requestUri);
         }
@@ -103,7 +103,7 @@ public class RestClient
             msg.EnsureSuccessStatusCode();
             return msg;
         }
-        catch( Exception ex )
+        catch (Exception ex)
         {
             throw GetRestException(ex, requestUri);
         }
@@ -117,7 +117,7 @@ public class RestClient
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<RetObj>(JsonOptions);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             throw GetRestException(ex, requestUri);
         }
@@ -131,7 +131,7 @@ public class RestClient
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<RetObj>(JsonOptions);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             throw GetRestException(ex, requestUri);
         }
@@ -143,7 +143,7 @@ public class RestClient
         {
             return await _restClient.PutAsJsonAsync(requestUri, obj, JsonOptions);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             throw GetRestException(ex, requestUri);
         }
@@ -155,7 +155,7 @@ public class RestClient
         {
             return await _restClient.DeleteAsync(requestUri);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             throw GetRestException(ex, requestUri);
         }
@@ -167,7 +167,7 @@ public class RestClient
         {
             return await _restClient.PatchAsJsonAsync(requestUri, obj, JsonOptions);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             throw GetRestException(ex, requestUri);
         }

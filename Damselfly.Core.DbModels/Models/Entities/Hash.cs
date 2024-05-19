@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Damselfly.Core.Utils;
@@ -73,7 +73,7 @@ public class Hash
 
             var chunks = fullHex.Chunk(4).Select(x => new string(x)).ToArray();
 
-            if ( chunks.Length == 4 )
+            if (chunks.Length == 4)
             {
                 PerceptualHex1 = chunks[0];
                 PerceptualHex2 = chunks[1];

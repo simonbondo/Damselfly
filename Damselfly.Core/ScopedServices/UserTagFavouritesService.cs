@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -56,11 +56,11 @@ public class UserTagRecentsService : IRecentTagService, IDisposable
     ///     Add most-recent tags to the list
     /// </summary>
     /// <param name="recentTags"></param>
-    public async void AddRecentTags( ICollection<string> newRecents)
+    public async void AddRecentTags(ICollection<string> newRecents)
     {
         try
         {
-            if( newRecents == null || !newRecents.Any() )
+            if (newRecents == null || !newRecents.Any())
                 return;
 
             const int maxRecents = 5;
@@ -68,22 +68,22 @@ public class UserTagRecentsService : IRecentTagService, IDisposable
             var faves = await _exifService.GetFavouriteTags();
             var recents = await GetRecentTags();
 
-            if( recents != null && recents.Any() )
+            if (recents != null && recents.Any())
             {
-                var newRecent = newRecents.Concat( recentTags )
-                    .Except( faves.Select( x => x.Keyword ) )
+                var newRecent = newRecents.Concat(recentTags)
+                    .Except(faves.Select(x => x.Keyword))
                     .Distinct()
-                    .Take( maxRecents ).ToList();
+                    .Take(maxRecents).ToList();
                 recentTags.Clear();
-                recentTags.AddRange( newRecent );
+                recentTags.AddRange(newRecent);
 
-                _configService.Set( ConfigSettings.RecentTags, string.Join( ",", recentTags ) );
+                _configService.Set(ConfigSettings.RecentTags, string.Join(",", recentTags));
                 NotifyRecentsChanged();
             }
         }
-        catch( Exception ex )
+        catch (Exception ex)
         {
-            _logger.LogError( $"Unable to add items to recent tags list: {ex.Message}." );
+            _logger.LogError($"Unable to add items to recent tags list: {ex.Message}.");
         }
     }
 }

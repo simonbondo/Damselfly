@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,7 +11,7 @@ namespace ImageClassification.ModelScorer;
 
 public class TFModelScorer
 {
-    private static string ImageReal = nameof(ImageReal);
+    private static readonly string ImageReal = nameof(ImageReal);
     private readonly string imagesFolder;
     private readonly string labelsLocation;
     private readonly MLContext mlContext;
@@ -73,7 +73,7 @@ public class TFModelScorer
 
         var labels = ReadLabels(labelsLocation);
 
-        foreach ( var sample in imageData )
+        foreach (var sample in imageData)
         {
             var probs = model.Predict(sample).PredictedLabels;
             var result = new ImageNetDataProbability
@@ -82,7 +82,7 @@ public class TFModelScorer
             };
             (result.PredictedLabel, result.Probability) = GetBestLabel(labels, probs);
 
-            if ( result.Probability > 0.4f )
+            if (result.Probability > 0.4f)
             {
                 result.ConsoleWrite();
                 yield return result;

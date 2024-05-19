@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -27,7 +27,7 @@ public static class SidecarUtils
     /// <returns></returns>
     public static bool IsSidecarFileType(this FileInfo filename)
     {
-        if ( filename.IsHidden() )
+        if (filename.IsHidden())
             return false;
 
         return SidecarExtensions.Any(x => x.Equals(filename.Extension, StringComparison.OrdinalIgnoreCase));
@@ -46,31 +46,31 @@ public static class SidecarUtils
         // If there's an On1 sidecar, read it
         try
         {
-            if ( sidecar.Type == SidecarType.ON1 )
+            if (sidecar.Type == SidecarType.ON1)
             {
                 var on1MetaData = On1Sidecar.LoadMetadata(sidecar.Filename);
 
-                if ( on1MetaData != null && on1MetaData.Keywords != null && on1MetaData.Keywords.Any() )
+                if (on1MetaData != null && on1MetaData.Keywords != null && on1MetaData.Keywords.Any())
                     sideCarTags = on1MetaData.Keywords
                         .Select(x => x.Trim())
                         .ToList();
             }
 
             // If there's an XMP sidecar
-            if ( sidecar.Type == SidecarType.XMP )
+            if (sidecar.Type == SidecarType.XMP)
             {
                 using var stream = File.OpenRead(sidecar.Filename.FullName);
                 var xmp = XmpMetaFactory.Parse(stream);
 
                 var xmpKeywords = xmp.Properties.FirstOrDefault(x => x.Path == "pdf:Keywords");
 
-                if ( xmpKeywords != null )
+                if (xmpKeywords != null)
                     sideCarTags = xmpKeywords.Value.Split(",")
                         .Select(x => x.Trim())
                         .ToList();
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"Exception processing {sidecar.Type} sidecar: {sidecar.Filename.FullName}: {ex.Message}");
         }
@@ -92,11 +92,11 @@ public static class SidecarUtils
         var dir = new DirectoryInfo(img.Folder.Path);
         var files = dir.GetFiles(sidecarSearch);
 
-        if ( files.Any() )
+        if (files.Any())
         {
             var on1Sidecar = files.FirstOrDefault(x => x.Extension.Equals(".on1", StringComparison.OrdinalIgnoreCase));
 
-            if ( on1Sidecar != null )
+            if (on1Sidecar != null)
             {
                 result = new ImageSideCar { Filename = on1Sidecar, Type = SidecarType.ON1 };
             }
@@ -104,7 +104,7 @@ public static class SidecarUtils
             {
                 var xmpSidecar =
                     files.FirstOrDefault(x => x.Extension.Equals(".xmp", StringComparison.OrdinalIgnoreCase));
-                if ( xmpSidecar != null ) result = new ImageSideCar { Filename = xmpSidecar, Type = SidecarType.XMP };
+                if (xmpSidecar != null) result = new ImageSideCar { Filename = xmpSidecar, Type = SidecarType.XMP };
             }
         }
 

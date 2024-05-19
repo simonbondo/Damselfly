@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Damselfly.Core.DbModels.Authentication;
 using Damselfly.Core.DbModels.Models.APIModels;
@@ -11,7 +11,7 @@ public interface IUserMgmtService
     bool RolesEnabled { get; }
     bool AllowPublicRegistration { get; } // WASM: Do we need this?
     Task<ICollection<AppIdentityUser>> GetUsers();
-    Task<AppIdentityUser> GetUser( int userId );
+    Task<AppIdentityUser> GetUser(int userId);
     Task<UserResponse> UpdateUserAsync(string userName, string email, ICollection<string> newRoles);
     Task<UserResponse> SetUserPasswordAsync(string userName, string password);
     Task<UserResponse> CreateNewUser(string userName, string email, string password, ICollection<string>? roles = null);

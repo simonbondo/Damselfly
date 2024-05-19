@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.Constants;
+using Damselfly.Core.Constants;
 using Damselfly.Core.DbModels.Models.APIModels;
 using Damselfly.Core.Models;
 using Damselfly.Core.ScopedServices.ClientServices;
@@ -19,7 +19,7 @@ public class ClientTagService : ITagService, IRecentTagService, ITagSearchServic
     public event Action OnFavouritesChanged;
     public event Action<ICollection<string>> OnUserTagsAdded;
 
-    public ClientTagService(RestClient client, NotificationsService notifications, ILogger<ClientTagService> logger )
+    public ClientTagService(RestClient client, NotificationsService notifications, ILogger<ClientTagService> logger)
     {
         _logger = logger;
         httpClient = client;
@@ -31,7 +31,7 @@ public class ClientTagService : ITagService, IRecentTagService, ITagSearchServic
 
     public async Task<ICollection<string>> GetRecentTags()
     {
-        if ( _recentTags == null )
+        if (_recentTags == null)
             _recentTags = await httpClient.CustomGetFromJsonAsync<List<string>>("/api/tags/recents");
 
         return _recentTags;
@@ -42,7 +42,7 @@ public class ClientTagService : ITagService, IRecentTagService, ITagSearchServic
         return await httpClient.CustomGetFromJsonAsync<List<Tag>>($"/api/tags/search/{filterText}");
     }
 
-    public async Task<Tag> GetTag( int tagId )
+    public async Task<Tag> GetTag(int tagId)
     {
         return await httpClient.CustomGetFromJsonAsync<Tag>($"/api/tag/{tagId}");
     }

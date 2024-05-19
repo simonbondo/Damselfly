@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.Constants;
+using Damselfly.Core.Constants;
 using Damselfly.Core.DbModels;
 using Damselfly.Core.ScopedServices.Interfaces;
 using Microsoft.AspNetCore.Authorization;

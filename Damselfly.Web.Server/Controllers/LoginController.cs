@@ -1,4 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Damselfly.Core.DbModels.Authentication;
@@ -24,11 +24,11 @@ public class LoginController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Login([FromBody] LoginModel login)
     {
-        var result = await _authService.Login( login );
+        var result = await _authService.Login(login);
 
-        if( result.Successful )
-            return Ok( result );
+        if (result.Successful)
+            return Ok(result);
         else
-            return BadRequest( result );
+            return BadRequest(result);
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Threading;
 using Serilog;
@@ -37,7 +37,7 @@ public class Logging
         {
             LogFolder = logFolder;
 
-            if ( !Directory.Exists(logFolder) )
+            if (!Directory.Exists(logFolder))
             {
                 Console.WriteLine($"Creating log folder {logFolder}");
                 Directory.CreateDirectory(logFolder);
@@ -46,10 +46,10 @@ public class Logging
             logLevel.MinimumLevel = LogEventLevel.Information;
             consoleLogLevel.MinimumLevel = LogEventLevel.Information;
 
-            if ( Verbose )
+            if (Verbose)
                 logLevel.MinimumLevel = LogEventLevel.Verbose;
 
-            if ( Trace )
+            if (Trace)
                 logLevel.MinimumLevel = LogEventLevel.Debug;
 
             var logFilePattern = Path.Combine(logFolder, "Damselfly-.log");
@@ -66,7 +66,7 @@ public class Logging
                 .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
                 .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Console.WriteLine($"Unable to initialise logs: {ex}");
         }
@@ -91,7 +91,7 @@ public class Logging
     /// <param name="newLevel"></param>
     public static void ChangeLogLevel(LogEventLevel newLevel)
     {
-        if ( newLevel != logLevel.MinimumLevel )
+        if (newLevel != logLevel.MinimumLevel)
         {
             logLevel.MinimumLevel = newLevel;
 
@@ -132,7 +132,7 @@ public class Logging
         public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
         {
             var thread = Thread.CurrentThread.Name;
-            if ( string.IsNullOrEmpty(thread) )
+            if (string.IsNullOrEmpty(thread))
                 thread = Thread.CurrentThread.ManagedThreadId.ToString("D4");
 
             logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty("ThreadID", thread));

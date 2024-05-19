@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.Models;
+using Damselfly.Core.Models;
 using Damselfly.Core.ScopedServices.ClientServices;
 
 namespace Damselfly.Core.ScopedServices;

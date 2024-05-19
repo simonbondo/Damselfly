@@ -1,4 +1,4 @@
-﻿using System.Net.Http.Headers;
+using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
 using Blazored.LocalStorage;
@@ -25,7 +25,7 @@ public class ApiAuthenticationStateProvider : AuthenticationStateProvider
     {
         var savedToken = await _localStorage.GetItemAsync<string>("authToken");
 
-        if ( string.IsNullOrWhiteSpace(savedToken) )
+        if (string.IsNullOrWhiteSpace(savedToken))
             return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
 
         _httpClient.AuthHeader = new AuthenticationHeaderValue("bearer", savedToken);
@@ -54,36 +54,36 @@ public class ApiAuthenticationStateProvider : AuthenticationStateProvider
         var jsonBytes = ParseBase64WithoutPadding(payload);
         var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
 
-        if( keyValuePairs != null )
+        if (keyValuePairs != null)
         {
-            keyValuePairs.TryGetValue( ClaimTypes.Role, out var roles );
+            keyValuePairs.TryGetValue(ClaimTypes.Role, out var roles);
 
-            if( roles != null )
+            if (roles != null)
             {
-                if( roles.ToString().Trim().StartsWith( "[" ) )
+                if (roles.ToString().Trim().StartsWith("["))
                 {
-                    var parsedRoles = JsonSerializer.Deserialize<string[]>( roles.ToString() );
+                    var parsedRoles = JsonSerializer.Deserialize<string[]>(roles.ToString());
 
-                    if( parsedRoles != null )
+                    if (parsedRoles != null)
                     {
-                        _logger.LogInformation( "Parsed roles from JWT:" );
-                        foreach( var parsedRole in parsedRoles )
+                        _logger.LogInformation("Parsed roles from JWT:");
+                        foreach (var parsedRole in parsedRoles)
                         {
-                            claims.Add( new Claim( ClaimTypes.Role, parsedRole ) );
-                            _logger.LogTrace( $"  [{roles}]" );
+                            claims.Add(new Claim(ClaimTypes.Role, parsedRole));
+                            _logger.LogTrace($"  [{roles}]");
                         }
                     }
                 }
                 else
                 {
-                    claims.Add( new Claim( ClaimTypes.Role, roles.ToString() ) );
-                    _logger.LogTrace( $"Parsed role from JWT: [{roles}]" );
+                    claims.Add(new Claim(ClaimTypes.Role, roles.ToString()));
+                    _logger.LogTrace($"Parsed role from JWT: [{roles}]");
                 }
 
-                keyValuePairs.Remove( ClaimTypes.Role );
+                keyValuePairs.Remove(ClaimTypes.Role);
             }
 
-            claims.AddRange( keyValuePairs.Select( kvp => new Claim( kvp.Key, kvp.Value.ToString() ) ) );
+            claims.AddRange(keyValuePairs.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString())));
         }
 
         _logger.LogTrace(
@@ -94,7 +94,7 @@ public class ApiAuthenticationStateProvider : AuthenticationStateProvider
 
     private static byte[] ParseBase64WithoutPadding(string base64)
     {
-        switch ( base64.Length % 4 )
+        switch (base64.Length % 4)
         {
             case 2:
                 base64 += "==";

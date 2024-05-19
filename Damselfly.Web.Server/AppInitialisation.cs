@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.Constants;
+using Damselfly.Core.Constants;
 using Damselfly.Core.Models;
 using Damselfly.Core.Services;
 using Damselfly.Core.Utils;
@@ -37,7 +37,7 @@ public static class AppInitialiser
         // ObjectDetector can throw a segmentation fault if the docker container is pinned
         // to a single CPU, so for now, to aid debugging, let's not even try and initialise
         // it if AI is disabled. See https://github.com/Webreaper/Damselfly/issues/334
-        if ( !services.GetRequiredService<ConfigService>().GetBool(ConfigSettings.DisableObjectDetector) )
+        if (!services.GetRequiredService<ConfigService>().GetBool(ConfigSettings.DisableObjectDetector))
             services.GetRequiredService<ObjectDetector>().InitScorer();
 
         // Validation check to ensure at least one user is an Admin
@@ -119,7 +119,7 @@ public static class AppInitialiser
 #endif
 
         // Add the jobs
-        foreach ( var task in tasks ) taskScheduler.AddTaskDefinition(task);
+        foreach (var task in tasks) taskScheduler.AddTaskDefinition(task);
 
         // Start the scheduler
         taskScheduler.Start();

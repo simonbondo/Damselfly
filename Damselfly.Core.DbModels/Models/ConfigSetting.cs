@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.DbModels.Authentication;
+using Damselfly.Core.DbModels.Authentication;
 
 namespace Damselfly.Core.Models;
 

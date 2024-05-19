@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -50,22 +50,22 @@ public class UserConfigService : BaseConfigService, IDisposable
     protected override async Task PersistSetting(ConfigSetRequest setRequest)
     {
         using var scope = _scopeFactory.CreateScope();
-        using var db = ImageContext.GetImageContext( scope );
+        using var db = ImageContext.GetImageContext(scope);
 
         var existing = await db.ConfigSettings
             .Where(x => x.Name == setRequest.Name && x.UserId == setRequest.UserId)
             .FirstOrDefaultAsync();
 
-        if ( string.IsNullOrEmpty(setRequest.NewValue) )
+        if (string.IsNullOrEmpty(setRequest.NewValue))
         {
             // Setting set to null - delete from the DB and cache
-            if ( existing != null )
+            if (existing != null)
                 db.ConfigSettings.Remove(existing);
         }
         else
         {
             // Set the value - either update the existing or create a new one
-            if ( existing != null )
+            if (existing != null)
             {
                 // Setting set to non-null - save in the DB and cache
                 existing.Value = setRequest.NewValue;
@@ -75,7 +75,7 @@ public class UserConfigService : BaseConfigService, IDisposable
             {
                 // Existing setting set to non-null - create in the DB and cache.
                 var newEntry = new ConfigSetting
-                    { Name = setRequest.Name, Value = setRequest.NewValue, UserId = setRequest.UserId };
+                { Name = setRequest.Name, Value = setRequest.NewValue, UserId = setRequest.UserId };
                 db.ConfigSettings.Add(newEntry);
             }
         }

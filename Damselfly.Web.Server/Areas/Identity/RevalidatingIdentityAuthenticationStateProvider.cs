@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
 using Microsoft.AspNetCore.Identity;
@@ -36,7 +36,7 @@ public class RevalidatingIdentityAuthenticationStateProvider<TUser>
         }
         finally
         {
-            if ( scope is IAsyncDisposable asyncDisposable )
+            if (scope is IAsyncDisposable asyncDisposable)
                 await asyncDisposable.DisposeAsync();
             else
                 scope.Dispose();
@@ -46,9 +46,9 @@ public class RevalidatingIdentityAuthenticationStateProvider<TUser>
     private async Task<bool> ValidateSecurityStampAsync(UserManager<TUser> userManager, ClaimsPrincipal principal)
     {
         var user = await userManager.GetUserAsync(principal);
-        if ( user == null ) return false;
+        if (user == null) return false;
 
-        if ( !userManager.SupportsUserSecurityStamp ) return true;
+        if (!userManager.SupportsUserSecurityStamp) return true;
 
         var principalStamp = principal.FindFirstValue(_options.ClaimsIdentity.SecurityStampClaimType);
         var userStamp = await userManager.GetSecurityStampAsync(user);

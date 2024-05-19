@@ -1,13 +1,13 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Damselfly.Core.Constants;
 using Damselfly.Core.Models;
 using Damselfly.Core.ScopedServices.Interfaces;
 using Damselfly.Core.Utils;
 using Damselfly.Shared.Utils;
-using Damselfly.Core.Constants;
 
 namespace Damselfly.Core.Services;
 
@@ -27,7 +27,7 @@ public class TaskService : ITaskService
 
     private readonly List<ScheduledTask> taskDefinitions = new();
     private readonly Queue<ScheduledTask> taskQueue = new();
-    private readonly TimeSpan timerFreq = new( 0, 1, 0 ); // Every minute
+    private readonly TimeSpan timerFreq = new(0, 1, 0); // Every minute
     private Timer timer;
 
     public TaskService()
@@ -42,7 +42,7 @@ public class TaskService : ITaskService
     /// <returns></returns>
     public Task<List<ScheduledTask>> GetTasksAsync()
     {
-        lock ( runningTaskLock )
+        lock (runningTaskLock)
         {
             return Task.FromResult(taskDefinitions);
         }
@@ -61,7 +61,7 @@ public class TaskService : ITaskService
     {
         var result = EnqueueTask(task);
 
-        if ( result )
+        if (result)
             // Now process the tasks
             ProcessTaskQueue();
 
@@ -90,13 +90,13 @@ public class TaskService : ITaskService
     {
         Logging.Log("Adding scheduled task: {0} every {1}", task.Type, task.ExecutionFrequency.ToHumanReadableString());
 
-        if ( taskDefinitions.Any(x => x.Type == task.Type) )
+        if (taskDefinitions.Any(x => x.Type == task.Type))
         {
             Logging.LogError("Duplicate task {0} added! Logic error.", task.Type);
             throw new Exception("Logic exception - duplicate scheduled task");
         }
 
-        if ( task.ImmediateStart )
+        if (task.ImmediateStart)
             task.NextRun = DateTime.UtcNow;
         else
             task.NextRun = DateTime.UtcNow + task.ExecutionFrequency;
@@ -116,8 +116,8 @@ public class TaskService : ITaskService
         // Now process the tasks
         ProcessTaskQueue();
 
-        foreach ( var job in runningTasks )
-            if ( job.Value.IsAlive )
+        foreach (var job in runningTasks)
+            if (job.Value.IsAlive)
                 Logging.LogTrace("Status: Task {0} is still running.", job.Key);
     }
 
@@ -127,12 +127,12 @@ public class TaskService : ITaskService
     /// </summary>
     private void QueuePendingTasks()
     {
-        foreach ( var task in taskDefinitions )
+        foreach (var task in taskDefinitions)
         {
             Logging.LogTrace($"Checking NextRun for task: {task}");
 
             // Have we passed the due time? Do it! 
-            if ( task.NextRun <= DateTime.UtcNow ) EnqueueTask(task);
+            if (task.NextRun <= DateTime.UtcNow) EnqueueTask(task);
         }
     }
 
@@ -146,7 +146,7 @@ public class TaskService : ITaskService
         var enqueued = false;
 
         // If the task isn't already running, and hasn't been queued to run, enqueue it
-        if ( !TaskIsRunning(task.Type) && !taskQueue.Where(x => x.Type == task.Type).Any() )
+        if (!TaskIsRunning(task.Type) && !taskQueue.Where(x => x.Type == task.Type).Any())
         {
             taskQueue.Enqueue(task);
             Logging.LogVerbose("Task {0} enqueued", task.Type);
@@ -167,7 +167,7 @@ public class TaskService : ITaskService
     /// </summary>
     private void ProcessTaskQueue()
     {
-        while ( taskQueue.Any() )
+        while (taskQueue.Any())
         {
             var task = taskQueue.Dequeue();
             var thread = new Thread(() => { ExecuteMethod(task); });
@@ -175,9 +175,9 @@ public class TaskService : ITaskService
             thread.IsBackground = true;
             thread.Priority = ThreadPriority.Lowest;
 
-            lock ( runningTaskLock )
+            lock (runningTaskLock)
             {
-                if ( runningTasks.Keys.Intersect(task.ExclusiveToTasks).Any() )
+                if (runningTasks.Keys.Intersect(task.ExclusiveToTasks).Any())
                 {
                     var avoid = string.Join(", ", task.ExclusiveToTasks);
                     Logging.LogVerbose(
@@ -205,7 +205,7 @@ public class TaskService : ITaskService
     /// <param name="task"></param>
     private void TaskCompleted(ScheduledTask task)
     {
-        lock ( runningTaskLock )
+        lock (runningTaskLock)
         {
             // Remove the task from the collection
             runningTasks.Remove(task.Type);
@@ -221,7 +221,7 @@ public class TaskService : ITaskService
     /// <returns></returns>
     private bool TaskIsRunning(TaskType type)
     {
-        lock ( runningTaskLock )
+        lock (runningTaskLock)
         {
             return runningTasks.ContainsKey(type);
         }
@@ -237,7 +237,7 @@ public class TaskService : ITaskService
     {
         try
         {
-            if ( task.WorkMethod != null )
+            if (task.WorkMethod != null)
             {
                 Logging.LogVerbose("Starting execution for task {0}", task.Type);
                 task.WorkMethod();
@@ -248,7 +248,7 @@ public class TaskService : ITaskService
                 Logging.LogWarning($"Task {task.Type} did not have a work method.");
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError("Exception while executing task {0}: {1}", task.Type, ex.Message);
         }
@@ -269,9 +269,9 @@ public class TaskService : ITaskService
     {
         timer.Dispose();
 
-        lock ( runningTaskLock )
+        lock (runningTaskLock)
         {
-            foreach ( var task in runningTasks ) Logging.Log($"Terminating thread for {task.Key}...");
+            foreach (var task in runningTasks) Logging.Log($"Terminating thread for {task.Key}...");
             // TODO - use cancellation token to end the thread.
             runningTasks.Clear();
         }

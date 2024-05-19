@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.Constants;
+using Damselfly.Core.Constants;
 using Damselfly.Core.Models;
 using Damselfly.Core.ScopedServices.Interfaces;
 using Damselfly.Shared.Utils;
@@ -41,7 +41,7 @@ public class UserFolderService : IDisposable, IUserFolderService
 
     public bool IsExpanded(Folder folder)
     {
-        if ( folderStates.TryGetValue(folder.FolderId, out var folderState) )
+        if (folderStates.TryGetValue(folder.FolderId, out var folderState))
             return folderState.Expanded;
 
         return false;
@@ -55,7 +55,7 @@ public class UserFolderService : IDisposable, IUserFolderService
     /// <returns></returns>
     public async Task<List<Folder>> GetFilteredFolders(string filterTerm)
     {
-        if ( folderItems == null )
+        if (folderItems == null)
         {
             // Load the folders if we haven't already.
             folderItems = await _folderService.GetFolders();
@@ -66,7 +66,7 @@ public class UserFolderService : IDisposable, IUserFolderService
 
         var rootFolderItem = folderItems.FirstOrDefault();
 
-        if ( rootFolderItem == null )
+        if (rootFolderItem == null)
             return new List<Folder>();
 
         var sortAscending = _configService.GetBool(ConfigSettings.FolderSortAscending, true);
@@ -74,13 +74,13 @@ public class UserFolderService : IDisposable, IUserFolderService
 
         IEnumerable<Folder> items;
 
-        if ( sortMode == "Date" )
+        if (sortMode == "Date")
             items = SortedChildren(rootFolderItem, x => x.MetaData.MaxImageDate, sortAscending).ToList();
         else
             items = SortedChildren(rootFolderItem, x => x.Name, sortAscending).ToList();
 
 
-        if ( items != null && items.Any() && !string.IsNullOrEmpty(filterTerm) )
+        if (items != null && items.Any() && !string.IsNullOrEmpty(filterTerm))
             items = items.Where(x => x.MetaData.DisplayName.ContainsNoCase(filterTerm)
                                      // Always include the currently selected folder so it remains highlighted
                                      || _searchService.Folder?.FolderId == x.FolderId)
@@ -88,19 +88,19 @@ public class UserFolderService : IDisposable, IUserFolderService
 
         var flat = _configService.GetBool(ConfigSettings.FlatView, true);
 
-        if ( flat )
+        if (flat)
         {
             var foldersWithImages = items.Where(x => x.MetaData.ImageCount > 0);
 
             // TODO: Refactor to make this more generic
-            if ( sortMode == "Date" )
+            if (sortMode == "Date")
             {
-                if ( sortAscending )
+                if (sortAscending)
                     return foldersWithImages.OrderBy(x => x.MetaData.MaxImageDate).ToList();
                 return foldersWithImages.OrderByDescending(x => x.MetaData.MaxImageDate).ToList();
             }
 
-            if ( sortAscending )
+            if (sortAscending)
                 return foldersWithImages.OrderBy(x => x.Name).ToList();
             return foldersWithImages.OrderByDescending(x => x.Name).ToList();
         }
@@ -111,10 +111,10 @@ public class UserFolderService : IDisposable, IUserFolderService
     public Task<Folder?> GetFolder(int folderId)
     {
         Folder? result = null;
-        if ( folderStates.TryGetValue(folderId, out var folderState) )
+        if (folderStates.TryGetValue(folderId, out var folderState))
             result = folderState.Folder;
 
-        return Task.FromResult( result );
+        return Task.FromResult(result);
     }
 
     /// <summary>
@@ -123,7 +123,7 @@ public class UserFolderService : IDisposable, IUserFolderService
     /// <param name="item"></param>
     public void ToggleExpand(Folder item)
     {
-        if ( folderStates.TryGetValue(item.FolderId, out var folderState) )
+        if (folderStates.TryGetValue(item.FolderId, out var folderState))
             folderState.Expanded = !folderState.Expanded;
     }
 

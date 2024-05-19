@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -59,7 +59,7 @@ public class SearchQueryService
 
         var watch = new Stopwatch("ImagesLoadData");
         var results = new List<int>();
-        
+
         Image similarImage = null;
         int similarId = 0;
 
@@ -78,7 +78,7 @@ public class SearchQueryService
             // Default is everything.
             var images = db.Images.AsQueryable();
 
-            if ( hasTextSearch )
+            if (hasTextSearch)
             {
                 var searchText = EscapeChars(query.SearchText);
                 // If we have search text, then hit the fulltext Search.
@@ -88,9 +88,9 @@ public class SearchQueryService
             // TODO: UI should make these two mutually exclusive
             if (query.UntaggedImages)
             {
-                images = images.Where(x => !x.ImageTags.Any() && ! x.ImageObjects.Any());
+                images = images.Where(x => !x.ImageTags.Any() && !x.ImageObjects.Any());
             }
-            else if ( query.Tag != null )
+            else if (query.Tag != null)
             {
                 var tagImages = images.Where(x => x.ImageTags.Any(y => y.TagId == query.Tag.TagId));
                 var objImages = images.Where(x => x.ImageObjects.Any(y => y.TagId == query.Tag.TagId));
@@ -128,7 +128,7 @@ public class SearchQueryService
             }
 
             // If selected, filter by the image filename/foldername
-            if ( hasTextSearch && !query.TagsOnly )
+            if (hasTextSearch && !query.TagsOnly)
             {
                 // TODO: Make this like more efficient. Toggle filename/path search? Or just add filename into FTS?
                 var likeTerm = $"%{query.SearchText}%";
@@ -139,17 +139,17 @@ public class SearchQueryService
                 images = images.Union(fileImages);
             }
 
-            if ( query.Person?.PersonId >= 0 )
+            if (query.Person?.PersonId >= 0)
                 // Filter by personID
                 images = images.Where(x => x.ImageObjects.Any(p => p.PersonId == query.Person.PersonId));
 
-            if ( query.Folder?.FolderId >= 0 )
+            if (query.Folder?.FolderId >= 0)
             {
                 IEnumerable<Folder> descendants;
 
-                if( query.IncludeChildFolders )
+                if (query.IncludeChildFolders)
                 {
-                    descendants = await db.GetChildFolderIds( db.Folders, query.Folder.FolderId );
+                    descendants = await db.GetChildFolderIds(db.Folders, query.Folder.FolderId);
                 }
                 else
                 {
@@ -160,57 +160,57 @@ public class SearchQueryService
                 images = images.Where(x => descendants.Select(x => x.FolderId).Contains(x.FolderId));
             }
 
-            if ( query.MinDate.HasValue || query.MaxDate.HasValue )
+            if (query.MinDate.HasValue || query.MaxDate.HasValue)
             {
                 var minDate = query.MinDate.HasValue ? query.MinDate.Value : DateTime.MinValue;
                 // Ensure the end date is always inclusive, so set the time to 23:59:59
                 var maxDate = query.MaxDate.HasValue ? query.MaxDate.Value.AddDays(1).AddSeconds(-1) : DateTime.MaxValue;
-                
+
                 // Always filter by date - because if there's no filter
                 // set then they'll be set to min/max date.
                 images = images.Where(x => x.SortDate >= minDate &&
                                            x.SortDate <= maxDate);
             }
 
-            if ( query.MinRating.HasValue )
+            if (query.MinRating.HasValue)
                 // Filter by Minimum rating
                 images = images.Where(x => x.MetaData.Rating >= query.MinRating);
 
-            if ( query.Month.HasValue )
+            if (query.Month.HasValue)
                 // Filter by month
                 images = images.Where(x => x.SortDate.Month == query.Month);
 
-            if ( query.MinSizeKB.HasValue )
+            if (query.MinSizeKB.HasValue)
             {
                 var minSizeBytes = query.MinSizeKB.Value * 1024;
                 images = images.Where(x => x.FileSizeBytes > minSizeBytes);
             }
 
-            if ( query.MaxSizeKB.HasValue )
+            if (query.MaxSizeKB.HasValue)
             {
                 var maxSizeBytes = query.MaxSizeKB.Value * 1024;
                 images = images.Where(x => x.FileSizeBytes < maxSizeBytes);
             }
 
-            if ( query.Orientation.HasValue )
+            if (query.Orientation.HasValue)
             {
-                if ( query.Orientation == OrientationType.Panorama )
+                if (query.Orientation == OrientationType.Panorama)
                     images = images.Where(x => x.MetaData.AspectRatio > 2);
-                else if ( query.Orientation == OrientationType.Landscape )
+                else if (query.Orientation == OrientationType.Landscape)
                     images = images.Where(x => x.MetaData.AspectRatio > 1);
-                else if ( query.Orientation == OrientationType.Portrait )
+                else if (query.Orientation == OrientationType.Portrait)
                     images = images.Where(x => x.MetaData.AspectRatio < 1);
-                else if ( query.Orientation == OrientationType.Square )
+                else if (query.Orientation == OrientationType.Square)
                     images = images.Where(x => x.MetaData.AspectRatio == 1);
             }
 
-            if ( query.CameraId.HasValue )
+            if (query.CameraId.HasValue)
                 images = images.Where(x => x.MetaData.CameraId == query.CameraId);
 
-            if ( query.LensId.HasValue )
+            if (query.LensId.HasValue)
                 images = images.Where(x => x.MetaData.LensId == query.LensId);
 
-            if ( query.FaceSearch.HasValue )
+            if (query.FaceSearch.HasValue)
                 images = query.FaceSearch switch
                 {
                     FaceSearchType.Faces => images.Where(x =>
@@ -225,7 +225,7 @@ public class SearchQueryService
                 };
 
             // Add in the ordering for the group by
-            switch ( query.Grouping )
+            switch (query.Grouping)
             {
                 case GroupingType.None:
                 case GroupingType.Date:
@@ -252,7 +252,7 @@ public class SearchQueryService
 
             Logging.Log($"Search: {results.Count()} images found in search query within {watch.ElapsedTime}ms");
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError("Search query failed: {0}", ex.Message);
         }
@@ -261,7 +261,7 @@ public class SearchQueryService
             watch.Stop();
         }
 
-        if ( results.Count < count )
+        if (results.Count < count)
             // The number of returned IDs is less than we asked for
             // so we must have reached the end of the results.
             response.MoreDataAvailable = false;
@@ -272,7 +272,7 @@ public class SearchQueryService
         try
         {
             // If it's a 'similar to' query, filter out the ones that don't pass the threshold.
-            if ( query.SimilarToId != null && enrichedImages.Any() )
+            if (query.SimilarToId != null && enrichedImages.Any())
             {
                 var threshold = _configService.GetInt(ConfigSettings.SimilarityThreshold, 75) / 100.0;
 
@@ -288,7 +288,7 @@ public class SearchQueryService
                 enrichedImages = similarImages;
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"Similarity threshold calculation failed: {ex}");
         }
@@ -308,11 +308,11 @@ public class SearchQueryService
         using var db = scope.ServiceProvider.GetService<ImageContext>();
 
         // WASM TODO Should make this better
-        if ( request.Query.FolderId.HasValue )
+        if (request.Query.FolderId.HasValue)
             query.Folder = await db.Folders.FirstOrDefaultAsync(x => x.FolderId == request.Query.FolderId.Value);
-        if ( request.Query.TagId.HasValue )
+        if (request.Query.TagId.HasValue)
             query.Tag = await db.Tags.FirstOrDefaultAsync(x => x.TagId == request.Query.TagId.Value);
-        if ( request.Query.PersonId.HasValue )
+        if (request.Query.PersonId.HasValue)
             query.Person = await db.People.FirstOrDefaultAsync(x => x.PersonId == request.Query.PersonId.Value);
 
         // Load more data if we need it.

@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.Constants;
+using Damselfly.Core.Constants;
 using Damselfly.Core.Database;
 using Damselfly.Core.Interfaces;
 using Damselfly.Core.Models;
@@ -16,7 +16,7 @@ namespace Damselfly.Web.Controllers;
 [ApiController]
 public class ImageController : Controller
 {
-    private ILogger<ImageController> _logger;
+    private readonly ILogger<ImageController> _logger;
 
     public ImageController(ILogger<ImageController> logger)
     {
@@ -40,28 +40,28 @@ public class ImageController : Controller
 
         IActionResult result = Redirect("/no-image.png");
 
-        if ( int.TryParse(imageId, out var id) )
+        if (int.TryParse(imageId, out var id))
             try
             {
                 var image = await imageCache.GetCachedImage(id);
 
-                if ( cancel.IsCancellationRequested )
+                if (cancel.IsCancellationRequested)
                     return result;
 
-                if ( image != null )
+                if (image != null)
                 {
                     string? downloadFilename = null;
 
-                    if ( isDownload )
+                    if (isDownload)
                         downloadFilename = image.FileName;
 
-                    if ( cancel.IsCancellationRequested )
+                    if (cancel.IsCancellationRequested)
                         return result;
 
                     result = PhysicalFile(image.FullPath, "image/jpeg", downloadFilename);
                 }
             }
-            catch ( Exception ex )
+            catch (Exception ex)
             {
                 Logging.LogError($"No thumb available for /rawmage/{imageId}: ", ex.Message);
             }
@@ -80,19 +80,19 @@ public class ImageController : Controller
 
         IActionResult result = Redirect("/no-image.png");
 
-        if ( Enum.TryParse<ThumbSize>(thumbSize, true, out var size) && int.TryParse(imageId, out var id) )
+        if (Enum.TryParse<ThumbSize>(thumbSize, true, out var size) && int.TryParse(imageId, out var id))
             try
             {
                 Logging.LogTrace($"Controller - Getting Thumb for {imageId}");
 
                 var image = await imageCache.GetCachedImage(id);
 
-                if ( cancel.IsCancellationRequested )
+                if (cancel.IsCancellationRequested)
                     return result;
 
-                if ( image != null )
+                if (image != null)
                 {
-                    if ( cancel.IsCancellationRequested )
+                    if (cancel.IsCancellationRequested)
                         return result;
 
                     Logging.LogTrace($" - Getting thumb path for {imageId}");
@@ -102,24 +102,24 @@ public class ImageController : Controller
                     var gotThumb = true;
 
 
-                    if ( !System.IO.File.Exists(imagePath) )
+                    if (!System.IO.File.Exists(imagePath))
                     {
                         gotThumb = false;
                         Logging.LogTrace($" - Generating thumbnail on-demand for {image.FileName}...");
 
-                        if ( cancel.IsCancellationRequested )
+                        if (cancel.IsCancellationRequested)
                             return result;
 
                         var conversionResult = await thumbService.ConvertFile(image, false, size);
 
-                        if ( conversionResult.ThumbsGenerated )
+                        if (conversionResult.ThumbsGenerated)
                             gotThumb = true;
                     }
 
-                    if ( cancel.IsCancellationRequested )
+                    if (cancel.IsCancellationRequested)
                         return result;
 
-                    if ( gotThumb )
+                    if (gotThumb)
                     {
                         Logging.LogTrace($" - Loading file for {imageId}");
 
@@ -129,7 +129,7 @@ public class ImageController : Controller
                     Logging.LogTrace($"Controller - served thumb for {imageId}");
                 }
             }
-            catch ( Exception ex )
+            catch (Exception ex)
             {
                 Logging.LogError($"Unable to process /thumb/{thumbSize}/{imageId}: {ex.Message}");
             }
@@ -144,7 +144,7 @@ public class ImageController : Controller
         Logging.LogTrace($" - Updating metadata for {image.ImageId}");
         try
         {
-            if ( image.MetaData != null )
+            if (image.MetaData != null)
             {
                 db.Attach(image.MetaData);
                 image.MetaData.ThumbLastUpdated = DateTime.UtcNow;
@@ -163,7 +163,7 @@ public class ImageController : Controller
 
             await db.SaveChangesAsync("ThumbUpdate");
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogWarning($"Unable to update DB thumb for ID {image.ImageId}: {ex.Message}");
         }
@@ -184,7 +184,7 @@ public class ImageController : Controller
             var query = db.ImageObjects.AsQueryable();
 
             // TODO Massively optimise this - if the file already exists we don't need the DB
-            if ( int.TryParse(faceId, out var personId) )
+            if (int.TryParse(faceId, out var personId))
                 query = query.Where(x => x.Person.PersonId == personId);
             else
                 query = query.Where(x => x.Person.PersonGuid == faceId);
@@ -196,17 +196,17 @@ public class ImageController : Controller
                 .ThenByDescending(x => x.Image.SortDate)
                 .FirstOrDefaultAsync();
 
-            if ( cancel.IsCancellationRequested )
+            if (cancel.IsCancellationRequested)
                 return result;
 
-            if ( face != null )
+            if (face != null)
             {
                 var thumbPath = await thumbService.GenerateFaceThumb(face);
 
-                if ( thumbPath != null && thumbPath.Exists ) result = PhysicalFile(thumbPath.FullName, "image/jpeg");
+                if (thumbPath != null && thumbPath.Exists) result = PhysicalFile(thumbPath.FullName, "image/jpeg");
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"Unable to load face thumbnail for {faceId}: {ex.Message}");
         }

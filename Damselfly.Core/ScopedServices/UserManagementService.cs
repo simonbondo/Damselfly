@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -61,12 +61,12 @@ public class UserManagementService : IUserMgmtService
     ///     Gets the list of users currently registered
     /// </summary>
     /// <returns></returns>
-    public async Task<AppIdentityUser> GetUserByName( string userName )
+    public async Task<AppIdentityUser> GetUserByName(string userName)
     {
         var user = await _userManager.Users
-            .Where( x => x.UserName == userName )
-            .Include( x => x.UserRoles )
-            .ThenInclude( y => y.Role )
+            .Where(x => x.UserName == userName)
+            .Include(x => x.UserRoles)
+            .ThenInclude(y => y.Role)
             .FirstOrDefaultAsync();
         return user;
     }
@@ -75,10 +75,10 @@ public class UserManagementService : IUserMgmtService
     ///     Gets the list of users currently registered
     /// </summary>
     /// <returns></returns>
-    public async Task<AppIdentityUser> GetUser(int userId )
+    public async Task<AppIdentityUser> GetUser(int userId)
     {
         var user = await _userManager.Users
-            .Where( x => x.Id == userId )
+            .Where(x => x.Id == userId)
             .Include(x => x.UserRoles)
             .ThenInclude(y => y.Role)
             .FirstOrDefaultAsync();
@@ -108,7 +108,7 @@ public class UserManagementService : IUserMgmtService
 
         var userRoles = await _userManager.GetRolesAsync(user);
 
-        if ( !userRoles.Any() )
+        if (!userRoles.Any())
             // If the user isn't a member of other roles (i.e., they haven't
             // been added to Admin) then make them a 'user'.
             await _userManager.AddToRoleAsync(user, RoleDefinitions.s_UserRole);
@@ -122,26 +122,26 @@ public class UserManagementService : IUserMgmtService
     /// <returns></returns>
     public async Task<UserResponse> UpdateUserAsync(string userName, string emailAddress, ICollection<string> newRoles)
     {
-        var user = await GetUserByName( userName );
+        var user = await GetUserByName(userName);
 
-        if( user != null )
+        if (user != null)
         {
             user.Email = emailAddress;
-            var result = await _userManager.UpdateAsync( user );
+            var result = await _userManager.UpdateAsync(user);
 
-            if( result.Succeeded )
+            if (result.Succeeded)
             {
-                var syncResult = await SyncUserRoles( user, newRoles, false );
+                var syncResult = await SyncUserRoles(user, newRoles, false);
 
-                if( syncResult != null )
+                if (syncResult != null)
                     // Non-null result means we did something and it succeeded or failed.
                     result = syncResult;
             }
 
-            return new UserResponse( result );
+            return new UserResponse(result);
         }
 
-        return new UserResponse( IdentityResult.Failed() );
+        return new UserResponse(IdentityResult.Failed());
     }
 
     /// <summary>
@@ -152,10 +152,10 @@ public class UserManagementService : IUserMgmtService
     /// <returns></returns>
     public async Task<UserResponse> SetUserPasswordAsync(string userName, string password)
     {
-        var user = await GetUserByName( userName );
+        var user = await GetUserByName(userName);
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-        return new UserResponse( await _userManager.ResetPasswordAsync(user, token, password) );
+        return new UserResponse(await _userManager.ResetPasswordAsync(user, token, password));
     }
 
     public async Task<UserResponse> CreateNewUser(string userName, string email, string password,
@@ -166,17 +166,17 @@ public class UserManagementService : IUserMgmtService
 
         var result = await _userManager.CreateAsync(newUser, password);
 
-        if ( result.Succeeded )
+        if (result.Succeeded)
         {
             Logging.Log("User created a new account with password.");
 
-            if ( roles == null || !roles.Any() )
+            if (roles == null || !roles.Any())
                 await AddUserToDefaultRoles(newUser);
             else
                 await SyncUserRoles(newUser, roles, false);
         }
 
-        return new UserResponse( result );
+        return new UserResponse(result);
     }
 
     public /*async*/ Task<string> GetUserPasswordResetLink(AppIdentityUser user)
@@ -217,17 +217,17 @@ public class UserManagementService : IUserMgmtService
             // First, check if there's any users at all yet.
             var users = _userManager.Users.ToList();
 
-            if ( users.Any() )
+            if (users.Any())
             {
                 // If we have users, see if any are Admins.
                 var adminUsers = await _userManager.GetUsersInRoleAsync(RoleDefinitions.s_AdminRole);
 
-                if ( !adminUsers.Any() )
+                if (!adminUsers.Any())
                 {
                     // For the moment, arbitrarily promote the first user to admin
                     var user = users.MinBy(x => x.Id);
 
-                    if ( user != null )
+                    if (user != null)
                     {
                         Logging.Log(
                             $"No user found with {RoleDefinitions.s_AdminRole} role. Adding user {user.UserName} to that role.");
@@ -235,7 +235,7 @@ public class UserManagementService : IUserMgmtService
                         // Put admin in Administrator role
                         var result = await _userManager.AddToRoleAsync(user, RoleDefinitions.s_AdminRole);
 
-                        if ( result.Succeeded )
+                        if (result.Succeeded)
                             // Remove the other roles from the users
                             await _userManager.RemoveFromRolesAsync(user,
                                 new List<string> { RoleDefinitions.s_ReadOnlyRole, RoleDefinitions.s_UserRole });
@@ -248,7 +248,7 @@ public class UserManagementService : IUserMgmtService
                 }
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"Unexpected exception while checking Admin role members: {ex}");
         }
@@ -276,17 +276,17 @@ public class UserManagementService : IUserMgmtService
 
         // Is this a full sync? Or just adding new roles?
         var rolesToRemove = Enumerable.Empty<string>();
-        if ( !addOnly )
+        if (!addOnly)
             rolesToRemove = roles.Except(newRoles);
 
         var errorMsg = string.Empty;
 
-        if ( rolesToRemove.Contains(RoleDefinitions.s_AdminRole) )
+        if (rolesToRemove.Contains(RoleDefinitions.s_AdminRole))
         {
             // Don't remove from Admin unless there's another admin
             var adminUsers = await _userManager.GetUsersInRoleAsync(RoleDefinitions.s_AdminRole);
 
-            if ( adminUsers.Count <= 1 )
+            if (adminUsers.Count <= 1)
             {
                 rolesToRemove = rolesToRemove.Except(new List<string> { RoleDefinitions.s_AdminRole });
                 errorMsg = $" Please ensure one other user has '{RoleDefinitions.s_AdminRole}'.";
@@ -295,7 +295,7 @@ public class UserManagementService : IUserMgmtService
 
         string changes = string.Empty, prefix = string.Empty;
 
-        if ( rolesToRemove.Any() )
+        if (rolesToRemove.Any())
         {
             prefix = $"User {user.UserName} ";
             result = await _userManager.RemoveFromRolesAsync(user, rolesToRemove);
@@ -308,12 +308,12 @@ public class UserManagementService : IUserMgmtService
                 changes = $"removed from {string.Join(", ", rolesToRemove.Select(x => "'x'"))} roles";
         }
 
-        if ( result.Succeeded && rolesToAdd.Any() )
+        if (result.Succeeded && rolesToAdd.Any())
         {
             prefix = $"User {user.UserName} ";
             result = await _userManager.AddToRolesAsync(user, rolesToAdd);
 
-            if ( !string.IsNullOrEmpty(changes) ) changes += " and ";
+            if (!string.IsNullOrEmpty(changes)) changes += " and ";
 
             if (!result.Succeeded)
             {
@@ -323,12 +323,12 @@ public class UserManagementService : IUserMgmtService
                 changes += $"added to {string.Join(", ", rolesToAdd.Select(x => $"'{x}'"))} roles";
         }
 
-        if ( !string.IsNullOrEmpty(changes) )
+        if (!string.IsNullOrEmpty(changes))
             changes += ". ";
 
         _statusService.UpdateStatus($"{prefix}{changes}{errorMsg}");
-        
-        if( ! string.IsNullOrEmpty( errorMsg ))
+
+        if (!string.IsNullOrEmpty(errorMsg))
             Logging.LogError($"SyncUserRoles: {prefix}{changes}{errorMsg}");
         else
             Logging.Log($"SyncUserRoles: {prefix}{changes}");

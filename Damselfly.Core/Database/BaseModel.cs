@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -8,12 +8,12 @@ using Damselfly.Core.Constants;
 using Damselfly.Core.DbModels.Authentication;
 using Damselfly.Core.Utils;
 using Damselfly.Shared.Utils;
+using EFCore.BulkExtensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Logging;
-using EFCore.BulkExtensions;
 
 namespace Damselfly.Core.DBAbstractions;
 
@@ -51,10 +51,10 @@ public abstract class BaseDBModel : IdentityDbContext<AppIdentityUser, Applicati
     /// <param name="options"></param>
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
-        if ( traceSQL )
+        if (traceSQL)
             options.UseLoggerFactory(SqlLoggerFactory);
 
-        if ( lazyLoad )
+        if (lazyLoad)
             options.UseLazyLoadingProxies();
 
         // Default to no tracking for performance. We can use Attach or 
@@ -72,7 +72,7 @@ public abstract class BaseDBModel : IdentityDbContext<AppIdentityUser, Applicati
     /// <returns>True if the insert succeeded</returns>
     public async Task<bool> BulkInsert<T>(DbSet<T> collection, List<T> itemsToSave) where T : class
     {
-        if ( ReadOnly )
+        if (ReadOnly)
         {
             Logging.LogVerbose("Read-only mode - no data will be inserted.");
             return true;
@@ -86,20 +86,20 @@ public abstract class BaseDBModel : IdentityDbContext<AppIdentityUser, Applicati
 
             success = true;
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             try
             {
-                foreach( var item in itemsToSave )
-                    collection.Add( item );
+                foreach (var item in itemsToSave)
+                    collection.Add(item);
                 await SaveChangesAsync();
 
-                Logging.LogWarning( $"EF Core bulkExtensions failed. Standard insert used (Msg: {ex.Message})" );
+                Logging.LogWarning($"EF Core bulkExtensions failed. Standard insert used (Msg: {ex.Message})");
 
             }
-            catch( Exception ex2 )
+            catch (Exception ex2)
             {
-                Logging.LogError( $"Exception during bulk insert: {ex2}" );
+                Logging.LogError($"Exception during bulk insert: {ex2}");
                 throw;
             }
         }
@@ -118,7 +118,7 @@ public abstract class BaseDBModel : IdentityDbContext<AppIdentityUser, Applicati
     public async Task<bool> BulkUpdate<T>(DbSet<T> collection, List<T> itemsToSave) where T : class
     {
         // TODO make this method protected and then move this check to the base class
-        if ( ReadOnly )
+        if (ReadOnly)
         {
             Logging.LogVerbose("Read-only mode - no data will be updated.");
             return true;
@@ -132,20 +132,20 @@ public abstract class BaseDBModel : IdentityDbContext<AppIdentityUser, Applicati
 
             success = true;
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             try
             {
-                foreach( var item in itemsToSave )
-                    collection.Update( item );
+                foreach (var item in itemsToSave)
+                    collection.Update(item);
                 await SaveChangesAsync();
 
-                Logging.LogWarning( $"EF Core bulkExtensions failed. Standard update used (Msg: {ex.Message})" );
+                Logging.LogWarning($"EF Core bulkExtensions failed. Standard update used (Msg: {ex.Message})");
 
             }
-            catch( Exception ex2 )
+            catch (Exception ex2)
             {
-                Logging.LogError( $"Exception during bulk update: {ex2}" );
+                Logging.LogError($"Exception during bulk update: {ex2}");
                 throw;
             }
         }
@@ -163,7 +163,7 @@ public abstract class BaseDBModel : IdentityDbContext<AppIdentityUser, Applicati
     /// <returns>True if the insert succeeded</returns>
     public async Task<bool> BulkDelete<T>(DbSet<T> collection, List<T> itemsToDelete) where T : class
     {
-        if ( ReadOnly )
+        if (ReadOnly)
         {
             Logging.LogVerbose("Read-only mode - no data will be deleted.");
             return true;
@@ -176,7 +176,7 @@ public abstract class BaseDBModel : IdentityDbContext<AppIdentityUser, Applicati
 
             success = true;
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"Exception during bulk delete: {ex}");
             throw;
@@ -193,7 +193,7 @@ public abstract class BaseDBModel : IdentityDbContext<AppIdentityUser, Applicati
     /// <returns></returns>
     public async Task<int> BatchDelete<T>(IQueryable<T> query) where T : class
     {
-        if ( ReadOnly )
+        if (ReadOnly)
             return 1;
 
         return await query.ExecuteDeleteAsync();
@@ -208,14 +208,14 @@ public abstract class BaseDBModel : IdentityDbContext<AppIdentityUser, Applicati
     public async Task<int> BatchUpdate<T>(IQueryable<T> query,
         Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> updateExpression) where T : class
     {
-        if ( ReadOnly )
+        if (ReadOnly)
             return 1;
 
         try
         {
             return await query.ExecuteUpdateAsync(updateExpression);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"Exception during batch update: {ex.Message}");
             return 0;
@@ -228,13 +228,13 @@ public abstract class BaseDBModel : IdentityDbContext<AppIdentityUser, Applicati
         {
             var connection = Database.GetDbConnection();
             connection.Open();
-            using ( var command = connection.CreateCommand() )
+            using (var command = connection.CreateCommand())
             {
                 command.CommandText = pragmaCommand;
                 command.ExecuteNonQuery();
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogWarning($"Unable to execute pragma command {pragmaCommand}: {ex.Message}");
         }
@@ -250,7 +250,7 @@ public abstract class BaseDBModel : IdentityDbContext<AppIdentityUser, Applicati
     /// </summary>
     private void LogChangeSummary()
     {
-        if ( !Logging.Trace )
+        if (!Logging.Trace)
             return;
 
         var allChanges = ChangeTracker.Entries()
@@ -260,8 +260,8 @@ public abstract class BaseDBModel : IdentityDbContext<AppIdentityUser, Applicati
             .ToList();
 
         Logging.LogTrace("Changes Summary:");
-        if ( allChanges.Any() )
-            foreach ( var x in allChanges )
+        if (allChanges.Any())
+            foreach (var x in allChanges)
                 Logging.LogTrace("  {0} {1}", x.Change, x.Number);
         else
             Logging.LogTrace("  No changes.");
@@ -296,7 +296,7 @@ public abstract class BaseDBModel : IdentityDbContext<AppIdentityUser, Applicati
         [CallerMemberName] string sourceMethod = "",
         [CallerLineNumber] int lineNumber = 0)
     {
-        if ( ReadOnly )
+        if (ReadOnly)
         {
             Logging.LogVerbose("Read-only mode - no data will be updated.");
             ClearChangeTracker();
@@ -306,7 +306,7 @@ public abstract class BaseDBModel : IdentityDbContext<AppIdentityUser, Applicati
         var retriesRemaining = 3;
         var recordsWritten = 0;
 
-        while ( retriesRemaining > 0 )
+        while (retriesRemaining > 0)
             try
             {
                 // Write to the DB
@@ -322,9 +322,9 @@ public abstract class BaseDBModel : IdentityDbContext<AppIdentityUser, Applicati
 
                 break;
             }
-            catch ( Exception ex )
+            catch (Exception ex)
             {
-                if ( ex.Message.Contains("database is locked") && retriesRemaining > 0 )
+                if (ex.Message.Contains("database is locked") && retriesRemaining > 0)
                 {
                     Logging.LogWarning(
                         $"Database locked for {contextDesc} - sleeping for 5s and retying {retriesRemaining}...");
@@ -335,7 +335,7 @@ public abstract class BaseDBModel : IdentityDbContext<AppIdentityUser, Applicati
                 {
                     Logging.LogError($"Exception - DB WRITE FAILED for {contextDesc}: {ex.Message}");
                     Logging.LogError($"  Called from {sourceMethod} line {lineNumber} in {sourceFilePath}.");
-                    if ( ex.InnerException != null )
+                    if (ex.InnerException != null)
                         Logging.LogError("  Exception - DB WRITE FAILED. InnerException: {0}",
                             ex.InnerException.Message);
 
@@ -372,7 +372,7 @@ public abstract class BaseDBModel : IdentityDbContext<AppIdentityUser, Applicati
             command.CommandText = pragmaCommand;
             command.ExecuteNonQuery();
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogWarning($"Unable to execute pragma command {pragmaCommand}: {ex.Message}");
         }
@@ -415,7 +415,7 @@ public abstract class BaseDBModel : IdentityDbContext<AppIdentityUser, Applicati
 
     private void OptimiseDB()
     {
-        if( DBNeedsCleaning() )
+        if (DBNeedsCleaning())
         {
             Logging.Log("Running Sqlite DB optimisation...");
             Database.ExecuteSqlRaw("VACUUM;");
@@ -438,7 +438,7 @@ public abstract class BaseDBModel : IdentityDbContext<AppIdentityUser, Applicati
     /// <param name="resultSet"></param>
     /// <param name="rootId"></param>
     /// <returns></returns>
-    public Task<IQueryable<T>> GetChildFolderIds<T>( DbSet<T> resultSet, int rootId ) where T : class
+    public Task<IQueryable<T>> GetChildFolderIds<T>(DbSet<T> resultSet, int rootId) where T : class
     {
         string sql = @"with recursive children(folderId, parentId) as (  
                                 select p.FolderID, p.ParentID                    
@@ -449,8 +449,8 @@ public abstract class BaseDBModel : IdentityDbContext<AppIdentityUser, Applicati
                                         join children c on c.FolderID = f.ParentId )
                                select r.* from folders r 
                                     join children x on r.FolderID = x.FolderID;";
-    
-        return Task.FromResult( resultSet.FromSqlRaw( sql, rootId ) );
+
+        return Task.FromResult(resultSet.FromSqlRaw(sql, rootId));
     }
 
     // Can this be made async?
@@ -468,7 +468,7 @@ public abstract class BaseDBModel : IdentityDbContext<AppIdentityUser, Applicati
         /// without risk of SQL injection. Unfortunately, though, it appears that MATCH doesn't support @param type params
         /// and gives a syntax error. So it doesn't seem there's any way around doing this right now. We'll mitigate by
         /// stripping out semi-colons etc from the search term.
-        foreach ( var term in terms.Select(x => Sanitize(x)) )
+        foreach (var term in terms.Select(x => Sanitize(x)))
         {
             parms.Add(term);
 
@@ -478,7 +478,7 @@ public abstract class BaseDBModel : IdentityDbContext<AppIdentityUser, Applicati
                 $"select distinct it.ImageId from FTSKeywords ftsKw join ImageTags it on it.tagId = ftsKw.TagId where ftsKw.Keyword MATCH ('{ftsTerm}')";
             var joinSubQuery = tagSubQuery;
 
-            if ( includeAITags )
+            if (includeAITags)
             {
                 var objectSubQuery =
                     $"select distinct io.ImageId from FTSKeywords ftsObj join ImageObjects io on io.tagId = ftsObj.TagId where ftsObj.Keyword MATCH ('{ftsTerm}')";

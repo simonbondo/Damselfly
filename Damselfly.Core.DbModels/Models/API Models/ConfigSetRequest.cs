@@ -1,4 +1,4 @@
-﻿namespace Damselfly.Core.DbModels.Models.APIModels;
+namespace Damselfly.Core.DbModels.Models.APIModels;
 
 public class ConfigSetRequest
 {

@@ -1,4 +1,4 @@
-﻿using ImageClassification.ModelScorer;
+using ImageClassification.ModelScorer;
 using Microsoft.ML.Data;
 
 namespace ImageClassification.ImageDataStructures;

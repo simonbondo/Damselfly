@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Damselfly.Core.Models;
@@ -29,5 +29,5 @@ public interface ITagSearchService
 {
     Task<ICollection<Tag>> SearchTags(string filterText);
     Task<ICollection<Tag>> GetAllTags();
-    Task<Tag> GetTag( int tagId );
+    Task<Tag> GetTag(int tagId);
 }

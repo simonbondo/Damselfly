@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using Damselfly.Core.Utils;
 using Damselfly.Core.Utils.ML;
@@ -29,15 +29,15 @@ public class ImageClassifier
         var totalBlue = 0;
 
         var image = srcImage.Clone(x => x.Resize(new ResizeOptions
-            { Sampler = KnownResamplers.NearestNeighbor, Size = new Size(100, 0) }));
+        { Sampler = KnownResamplers.NearestNeighbor, Size = new Size(100, 0) }));
 
         image.ProcessPixelRows(pixelAccessor =>
         {
-            for ( var y = 0; y < pixelAccessor.Height; y++ )
+            for (var y = 0; y < pixelAccessor.Height; y++)
             {
                 var row = pixelAccessor.GetRowSpan(y);
 
-                for ( var x = 0; x < row.Length; x++ )
+                for (var x = 0; x < row.Length; x++)
                 {
                     totalRed += row[x].R;
                     totalGreen += row[x].G;
@@ -56,7 +56,7 @@ public class ImageClassifier
     public ImageDetectResult DetectObjects()
     {
         var modelDir = MLUtils.ModelFolder;
-        if ( modelDir == null )
+        if (modelDir == null)
         {
             Logging.LogError("Image classification modelDire was null.");
             return null;
@@ -67,13 +67,13 @@ public class ImageClassifier
         var inceptionPb = Path.Combine(modelDir.FullName, "tensorflow_inception_graph.pb");
         var labelsTxt = Path.Combine(modelDir.FullName, "imagenet_comp_graph_label_strings.txt");
 
-        if ( !File.Exists(inceptionPb) )
+        if (!File.Exists(inceptionPb))
         {
             Logging.LogError($"Image classification TF model was not found at {inceptionPb}");
             return null;
         }
 
-        if ( !File.Exists(inceptionPb) )
+        if (!File.Exists(inceptionPb))
         {
             Logging.LogError($"Image classification TF labels not found at {labelsTxt}");
             return null;
@@ -85,7 +85,7 @@ public class ImageClassifier
             var modelScorer = new TFModelScorer(imagesFolder, inceptionPb, labelsTxt);
             modelScorer.Score(null);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"Exception during image classification processing: {ex}");
         }

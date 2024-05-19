@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.DbModels.Models.APIModels;
+using Damselfly.Core.DbModels.Models.APIModels;
 using Damselfly.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -11,6 +11,7 @@ using Damselfly.Core.DbModels.Authentication;
 using Damselfly.Core.ImageProcessing;
 using Damselfly.Core.Models;
 using Damselfly.Core.ScopedServices.ClientServices;
+using Damselfly.Core.ScopedServices.Interfaces;
 using Damselfly.Core.Services;
 using Damselfly.Core.Utils;
 using Damselfly.Shared.Utils;
@@ -23,7 +24,6 @@ using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Events;
 using ILogger = Serilog.ILogger;
-using Damselfly.Core.ScopedServices.Interfaces;
 
 namespace Damselfly.Web;
 
@@ -35,7 +35,7 @@ public class Program
         {
             Parser.Default.ParseArguments<DamselflyOptions>(args).WithParsed(o => { Startup(o, args); });
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Console.WriteLine($"Startup exception: {ex}");
         }
@@ -51,12 +51,12 @@ public class Program
         Logging.Verbose = o.Verbose;
         Logging.Trace = o.Trace;
 
-        if ( Directory.Exists(o.SourceDirectory) )
+        if (Directory.Exists(o.SourceDirectory))
         {
-            if ( !Directory.Exists(o.ConfigPath) )
+            if (!Directory.Exists(o.ConfigPath))
                 Directory.CreateDirectory(o.ConfigPath);
 
-            if ( o.ReadOnly )
+            if (o.ReadOnly)
             {
                 o.NoEnableIndexing = true;
                 o.NoGenerateThumbnails = true;
@@ -102,7 +102,7 @@ public class Program
     {
         var dbFolder = Path.Combine(cmdLineOptions.ConfigPath, "db");
 
-        if ( !Directory.Exists(dbFolder) )
+        if (!Directory.Exists(dbFolder))
         {
             Logging.Log(" Created DB folder: {0}", dbFolder);
             Directory.CreateDirectory(dbFolder);
@@ -114,7 +114,8 @@ public class Program
 
         // Add services to the container.
         builder.Services.AddDbContext<ImageContext>(options => options.UseSqlite(connectionString,
-            b => {
+            b =>
+            {
                 b.MigrationsAssembly("Damselfly.Migrations.Sqlite");
                 b.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery);
             }));
@@ -159,7 +160,7 @@ public class Program
             opts.Providers.Add<BrotliCompressionProvider>();
             opts.Providers.Add<GzipCompressionProvider>();
             opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
-                new[] { "image/svg+xml",  "application/octet-stream" });
+                new[] { "image/svg+xml", "application/octet-stream" });
         });
 
         // Swagger
@@ -169,7 +170,7 @@ public class Program
         builder.Services.AddImageServices();
         builder.Services.AddHostedBlazorBackEndServices();
 
-        if( ! Debugger.IsAttached )
+        if (!Debugger.IsAttached)
         {
             // Use Kestrel options to set the port. Using .Urls.Add breaks WASM debugging.
             // This line also breaks wasm debugging in Rider.
@@ -190,13 +191,13 @@ public class Program
         var configService = app.Services.GetRequiredService<ConfigService>();
         var logLevel = configService.Get(ConfigSettings.LogLevel, LogEventLevel.Information);
 
-        if( cmdLineOptions.NoGenerateThumbnails )
-            configService.Set( ConfigSettings.EnableBackgroundThumbs, false.ToString() );
+        if (cmdLineOptions.NoGenerateThumbnails)
+            configService.Set(ConfigSettings.EnableBackgroundThumbs, false.ToString());
 
         Logging.ChangeLogLevel(logLevel);
 
         // Configure the HTTP request pipeline.
-        if ( app.Environment.IsDevelopment() )
+        if (app.Environment.IsDevelopment())
         {
             app.UseMigrationsEndPoint();
             app.UseWebAssemblyDebugging();
@@ -211,7 +212,7 @@ public class Program
         app.UseHttpsRedirection();
 
         app.UseBlazorFrameworkFiles();
-        
+
         // TODO: Do we need this if we serve all the images via the controller?
         app.UseStaticFiles();
         app.UseStaticFiles(new StaticFileOptions
@@ -225,17 +226,17 @@ public class Program
         app.UseRouting();
         app.UseAntiforgery();
 
-        if( Debugger.IsAttached )
+        if (Debugger.IsAttached)
         {
             app.UseSwagger();
-            app.UseSwaggerUI( c =>
+            app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint( "/swagger/v1/swagger.json", "Damselfly API" );
-            } );
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Damselfly API");
+            });
         }
 
         // Map the signalR notifications endpoints
-        app.MapHub<NotificationHub>($"/{NotificationHub.NotificationRoot}", options => options.AllowStatefulReconnects = true );
+        app.MapHub<NotificationHub>($"/{NotificationHub.NotificationRoot}", options => options.AllowStatefulReconnects = true);
 
         app.UseAuthentication();
         app.UseAuthorization();
@@ -243,7 +244,7 @@ public class Program
         app.MapRazorPages();
         app.MapControllers();
         app.MapFallbackToFile("index.html");
-        
+
         // Start up all the Damselfly Services
         app.Environment.SetupServices(app.Services);
 
@@ -253,26 +254,26 @@ public class Program
         app.Run();
     }
 
-    private static void InitialiseDB( WebApplication app, DamselflyOptions options )
+    private static void InitialiseDB(WebApplication app, DamselflyOptions options)
     {
         using var scope = app.Services.CreateScope();
         using var db = scope.ServiceProvider.GetService<ImageContext>();
 
-        if( db != null )
+        if (db != null)
         {
             try
             {
-                Logging.Log( "Running Sqlite DB migrations..." );
+                Logging.Log("Running Sqlite DB migrations...");
                 db.Database.Migrate();
             }
-            catch( Exception ex )
+            catch (Exception ex)
             {
-                Logging.LogWarning( $"Migrations failed with exception: {ex}" );
+                Logging.LogWarning($"Migrations failed with exception: {ex}");
 
-                if( ex.InnerException != null )
-                    Logging.LogWarning( $"InnerException: {ex.InnerException}" );
+                if (ex.InnerException != null)
+                    Logging.LogWarning($"InnerException: {ex.InnerException}");
 
-                Logging.Log( "Creating DB." );
+                Logging.Log("Creating DB.");
                 db.Database.EnsureCreated();
             }
 

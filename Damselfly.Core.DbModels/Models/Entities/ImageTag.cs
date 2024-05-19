@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Damselfly.Core.Models;
 
@@ -26,7 +26,7 @@ public class ImageTag
     {
         var objTag = obj as ImageTag;
 
-        if ( objTag != null )
+        if (objTag != null)
             return objTag.ImageId.Equals(ImageId) && objTag.TagId.Equals(TagId);
 
         return false;

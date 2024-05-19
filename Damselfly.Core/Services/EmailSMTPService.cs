@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Damselfly.Core.DbModels.Models;
@@ -44,12 +44,12 @@ public class EmailSmtpService : IEmailSender
                 Text = message
             };
 
-            using ( var client = new SmtpClient() )
+            using (var client = new SmtpClient())
             {
                 // For demo-purposes, accept all SSL certificates (in case the server supports STARTTLS)
                 client.ServerCertificateValidationCallback = (s, c, h, e) => true;
 
-                if ( Debugger.IsAttached )
+                if (Debugger.IsAttached)
                     // The third parameter is useSSL (true if the client should make an SSL-wrapped
                     // connection to the server; otherwise, false).
                     await client.ConnectAsync(_emailSettings.MailServer, _emailSettings.MailPort, true);
@@ -66,7 +66,7 @@ public class EmailSmtpService : IEmailSender
                 Logging.Log($"Email send to {email} complete.");
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"SMTP send error: {ex}");
         }

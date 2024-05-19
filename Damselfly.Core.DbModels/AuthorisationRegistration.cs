@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Threading.Tasks;
 using Damselfly.Core.Constants;
 using Damselfly.Core.DbModels.Authentication;
@@ -12,9 +12,9 @@ namespace Damselfly.Core.DbModels;
 
 public static class AuthorisationRegistration
 {
-    private static bool IsAdminOrNoUsers( AuthorizationHandlerContext context, UserManager<AppIdentityUser> userManager )
+    private static bool IsAdminOrNoUsers(AuthorizationHandlerContext context, UserManager<AppIdentityUser> userManager)
     {
-        if (context.User != null && context.User.IsInRole(RoleDefinitions.s_AdminRole) )
+        if (context.User != null && context.User.IsInRole(RoleDefinitions.s_AdminRole))
             return true;
 
         // No logged in users. See if there are any users. If not, we allow it
@@ -39,7 +39,7 @@ public static class AuthorisationRegistration
                                 ConfigSettings.DefaultEnableRolesAndAuth);
 
 
-        if ( enablePolicies )
+        if (enablePolicies)
         {
             logger.LogInformation("Polices and Roles are enabled.");
 
@@ -58,7 +58,7 @@ public static class AuthorisationRegistration
             // Special role for the user Admin page - only accessible if the current user
             // is an admin or there are no users defined at all.
             config.AddPolicy(PolicyDefinitions.s_IsAdminOrNoUsers, policy => policy.RequireAssertion(
-                            context => IsAdminOrNoUsers( context, userManager )));
+                            context => IsAdminOrNoUsers(context, userManager)));
 
             // Admins, Users and ReadOnly users can download
             config.AddPolicy(PolicyDefinitions.s_IsDownloader, policy => policy.RequireRole(

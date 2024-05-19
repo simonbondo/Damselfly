@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Damselfly.Core.Database;
@@ -29,7 +29,7 @@ public class ConfigService : BaseConfigService, IConfigService
     protected override async Task<List<ConfigSetting>> LoadAllSettings()
     {
         using var scope = _scopeFactory.CreateScope();
-        using var db = ImageContext.GetImageContext( scope );
+        using var db = ImageContext.GetImageContext(scope);
 
         // Get all the settings that are either global, or match our user.
         var settings = await db.ConfigSettings
@@ -49,9 +49,9 @@ public class ConfigService : BaseConfigService, IConfigService
     public async Task<List<ConfigSetting>> GetAllSettingsForUser(int? userId)
     {
         using var scope = _scopeFactory.CreateScope();
-        using var db = ImageContext.GetImageContext( scope );
+        using var db = ImageContext.GetImageContext(scope);
 
-        if( userId != null && userId > 0 )
+        if (userId != null && userId > 0)
         {
             // Get all the settings that are either global, or match our user.
             var userSettings = db.ConfigSettings.Where(x => x.UserId == userId);
@@ -67,29 +67,29 @@ public class ConfigService : BaseConfigService, IConfigService
         // No user, so just return the global settings.
         return await db.ConfigSettings
             .Where(x => x.UserId == 0 || x.UserId == null)
-            .OrderBy( x => x.Name )
+            .OrderBy(x => x.Name)
             .ToListAsync();
     }
 
     protected override async Task PersistSetting(ConfigSetRequest setRequest)
     {
         using var scope = _scopeFactory.CreateScope();
-        using var db = ImageContext.GetImageContext( scope );
+        using var db = ImageContext.GetImageContext(scope);
 
         var existing = await db.ConfigSettings
             .Where(x => x.Name == setRequest.Name && x.UserId == setRequest.UserId)
             .FirstOrDefaultAsync();
 
-        if ( string.IsNullOrEmpty(setRequest.NewValue) )
+        if (string.IsNullOrEmpty(setRequest.NewValue))
         {
             // Setting set to null - delete from the DB and cache
-            if ( existing != null )
+            if (existing != null)
                 db.ConfigSettings.Remove(existing);
         }
         else
         {
             // Set the value - either update the existing or create a new one
-            if ( existing != null )
+            if (existing != null)
             {
                 // Setting set to non-null - save in the DB and cache
                 existing.Value = setRequest.NewValue;
@@ -99,7 +99,7 @@ public class ConfigService : BaseConfigService, IConfigService
             {
                 // Existing setting set to non-null - create in the DB and cache.
                 var newEntry = new ConfigSetting
-                    { Name = setRequest.Name, Value = setRequest.NewValue, UserId = setRequest.UserId };
+                { Name = setRequest.Name, Value = setRequest.NewValue, UserId = setRequest.UserId };
                 db.ConfigSettings.Add(newEntry);
             }
         }

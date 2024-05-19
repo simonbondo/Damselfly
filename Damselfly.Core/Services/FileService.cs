@@ -17,9 +17,9 @@ public class FileService : IFileService
     private readonly IConfigService _configService;
     private readonly ICachedDataService _cachedDataService;
 
-    public FileService( IStatusService statusService, IImageCacheService imageCacheService, 
+    public FileService(IStatusService statusService, IImageCacheService imageCacheService,
                         ICachedDataService cachedDataService, IConfigService configService,
-                        ILogger<FileService> logger )
+                        ILogger<FileService> logger)
     {
         _statusService = statusService;
         _imageCache = imageCacheService;
@@ -37,45 +37,45 @@ public class FileService : IFileService
     /// </summary>
     /// <param name="req"></param>
     /// <returns></returns>
-    public async Task<bool> DeleteImages( MultiImageRequest req )
+    public async Task<bool> DeleteImages(MultiImageRequest req)
     {
-        var trashFolder = _configService.Get( ConfigSettings.TrashcanFolderName, "DamselflyTrashcan" );
+        var trashFolder = _configService.Get(ConfigSettings.TrashcanFolderName, "DamselflyTrashcan");
 
         // TODO - allow users to configure the delete folder name
-        var destfolder = Path.Combine( _cachedDataService.ImagesRootFolder, trashFolder );
+        var destfolder = Path.Combine(_cachedDataService.ImagesRootFolder, trashFolder);
         var success = true;
-        var images = await _imageCache.GetCachedImages( req.ImageIDs );
+        var images = await _imageCache.GetCachedImages(req.ImageIDs);
 
-        if( !Directory.Exists( destfolder ) )
+        if (!Directory.Exists(destfolder))
         {
             try
             {
                 // Store the setting
-                _configService.Set( ConfigSettings.TrashcanFolderName, trashFolder );
+                _configService.Set(ConfigSettings.TrashcanFolderName, trashFolder);
 
-                var dir = Directory.CreateDirectory( destfolder );
+                var dir = Directory.CreateDirectory(destfolder);
                 // Hide this here?
                 // dir.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
-                _logger.LogInformation( $"Created trashcan folder: {destfolder}" );
+                _logger.LogInformation($"Created trashcan folder: {destfolder}");
             }
-            catch( Exception ex )
+            catch (Exception ex)
             {
-                _logger.LogError( $"Unable to create folder {destfolder}: {ex}" );
+                _logger.LogError($"Unable to create folder {destfolder}: {ex}");
                 return false;
             }
         }
 
-        foreach( var image in images )
+        foreach (var image in images)
         {
-            var dest = Path.Combine( destfolder, image.FileName );
+            var dest = Path.Combine(destfolder, image.FileName);
 
-            if( File.Exists( dest ) )
+            if (File.Exists(dest))
             {
                 // If there's a collision, create a unique filename
-                dest = GetUniqueFilename( dest );
+                dest = GetUniqueFilename(dest);
             }
 
-            if( !SafeCopyOrMove( image, dest, true ) )
+            if (!SafeCopyOrMove(image, dest, true))
                 success = false;
         }
 
@@ -88,14 +88,14 @@ public class FileService : IFileService
     /// </summary>
     /// <param name="filename">A full filename, e.g., C:\temp\myfile.tmp</param>
     /// <returns>A filename like C:\temp\myfile_633822247336197902.tmp</returns>
-    public string GetUniqueFilename( string filename )
+    public string GetUniqueFilename(string filename)
     {
-        string basename = Path.Combine( Path.GetDirectoryName( filename ),
-                                       Path.GetFileNameWithoutExtension( filename ) );
-        string uniquefilename = string.Format( "{0}_{1}{2}",
+        string basename = Path.Combine(Path.GetDirectoryName(filename),
+                                       Path.GetFileNameWithoutExtension(filename));
+        string uniquefilename = string.Format("{0}_{1}{2}",
                                                 basename,
                                                 DateTime.Now.Ticks,
-                                                Path.GetExtension( filename ) );
+                                                Path.GetExtension(filename));
         return uniquefilename;
     }
 
@@ -107,13 +107,13 @@ public class FileService : IFileService
     public async Task<bool> MoveImages(ImageMoveRequest req)
     {
         var success = true;
-        var images = await _imageCache.GetCachedImages( req.ImageIDs );
+        var images = await _imageCache.GetCachedImages(req.ImageIDs);
 
-        foreach( var image in images )
+        foreach (var image in images)
         {
             var dest = Path.Combine(req.Destination.Path, image.FileName);
 
-            if( !SafeCopyOrMove( image, dest, req.Move ) )
+            if (!SafeCopyOrMove(image, dest, req.Move))
                 success = false;
         }
 
@@ -124,12 +124,12 @@ public class FileService : IFileService
     {
         var source = image.FullPath;
 
-        if( File.Exists(source) && !File.Exists( destFilename ) )
+        if (File.Exists(source) && !File.Exists(destFilename))
         {
             try
             {
                 // Note, we *never* overwrite.
-                if( move )
+                if (move)
                 {
                     File.Move(source, destFilename, false);
                     _statusService.UpdateStatus($"Moved {image.FileName} to {destFilename}");
@@ -142,7 +142,7 @@ public class FileService : IFileService
 
                 return true;
             }
-            catch( Exception ex )
+            catch (Exception ex)
             {
                 _logger.LogError($"Unable to move file to {destFilename}: {ex}");
             }

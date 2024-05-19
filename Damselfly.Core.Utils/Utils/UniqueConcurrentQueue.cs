@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace Damselfly.Core.Utils;
@@ -25,7 +25,7 @@ public class UniqueConcurrentPriorityQueue<T, K> where K : notnull
     {
         get
         {
-            lock ( _queue )
+            lock (_queue)
             {
                 return _queueLookup.Count == 0;
             }
@@ -37,16 +37,16 @@ public class UniqueConcurrentPriorityQueue<T, K> where K : notnull
     /// </summary>
     /// <returns>Object of type T</returns>
     /// <exception cref="ApplicationException"></exception>
-    public bool TryDequeue( out T? result)
+    public bool TryDequeue(out T? result)
     {
         result = default;
 
-        lock ( _queue )
+        lock (_queue)
         {
-            if ( _queue.TryDequeue(out var item, out var _) )
+            if (_queue.TryDequeue(out var item, out var _))
             {
                 var key = _keyFunc(item);
-                if ( !_queueLookup.Remove(key, out var _) )
+                if (!_queueLookup.Remove(key, out var _))
                     // Something bad happened - the collections are now out of sync.
                     throw new ApplicationException($"Unable to remove key {key} from lookup.");
 
@@ -68,13 +68,13 @@ public class UniqueConcurrentPriorityQueue<T, K> where K : notnull
     {
         var added = false;
 
-        lock ( _queue )
+        lock (_queue)
         {
             var key = _keyFunc(newItem);
 
             Logging.LogVerbose($"Adding job with key '{key}' to work queue...");
 
-            if ( _queueLookup.TryAdd(key, newItem) )
+            if (_queueLookup.TryAdd(key, newItem))
             {
                 // Success - this means the item wasn't already in the collection. So enqueue it
                 _queue.Enqueue(newItem, priority);

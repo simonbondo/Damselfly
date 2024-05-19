@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.Models;
+using Damselfly.Core.Models;
 using Damselfly.Core.ScopedServices;
 using Damselfly.Core.ScopedServices.Interfaces;
 using Damselfly.Shared.Utils;
@@ -32,13 +32,13 @@ public class ImageGridBase : ComponentBase
     protected async Task ToggleSelected(MouseEventArgs e, SelectionInfo selectionInfo)
     {
         var watch = new Stopwatch("ToggleSelection");
-        if ( e.ShiftKey && prevSelection != null )
+        if (e.ShiftKey && prevSelection != null)
         {
             // Range selection.
             var first = prevSelection.index;
             var last = selectionInfo.index;
 
-            if ( first > last )
+            if (first > last)
             {
                 var temp = last;
                 last = first;
@@ -54,7 +54,7 @@ public class ImageGridBase : ComponentBase
         }
         else
         {
-            if ( e.MetaKey || e.CtrlKey )
+            if (e.MetaKey || e.CtrlKey)
             {
                 // Apple key was pressed - toggle the selection
                 selectionService.ToggleSelection(new List<Image> { selectionInfo.image });
@@ -68,7 +68,7 @@ public class ImageGridBase : ComponentBase
                 selectionService.ClearSelection();
                 prevSelection = null;
 
-                if ( !wasPreviouslySelected )
+                if (!wasPreviouslySelected)
                 {
                     selectionService.SelectImage(selectionInfo.image);
                     prevSelection = selectionInfo;

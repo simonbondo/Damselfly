@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.Models;
+using Damselfly.Core.Models;
 using Damselfly.Core.ScopedServices.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,7 +18,7 @@ public class AccountsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] RegisterModel model)
     {
-        var response = await _authService.Register( model );
+        var response = await _authService.Register(model);
 
         return Ok(response);
     }

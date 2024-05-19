@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -19,19 +19,19 @@ public class DominantColorUtils
         float brightnessThreshold)
     {
         var colorHueHistorgram = new Dictionary<int, uint>();
-        for ( var i = 0; i <= 360; i++ ) colorHueHistorgram.Add(i, 0);
+        for (var i = 0; i <= 360; i++) colorHueHistorgram.Add(i, 0);
 
         image.ProcessPixelRows(pixelAccessor =>
         {
-            for ( var y = 0; y < pixelAccessor.Height; y++ )
+            for (var y = 0; y < pixelAccessor.Height; y++)
             {
                 var row = pixelAccessor.GetRowSpan(y);
 
-                for ( var x = 0; x < row.Length; x++ )
+                for (var x = 0; x < row.Length; x++)
                 {
                     var clr = Color.FromArgb(row[x].R, row[x].G, row[x].B);
 
-                    if ( clr.GetSaturation() > saturationThreshold && clr.GetBrightness() > brightnessThreshold )
+                    if (clr.GetSaturation() > saturationThreshold && clr.GetBrightness() > brightnessThreshold)
                     {
                         var hue = (int)Math.Round(clr.GetHue(), 0);
                         colorHueHistorgram[hue]++;
@@ -51,9 +51,9 @@ public class DominantColorUtils
     private static int CorrectHueIndex(int hue)
     {
         var result = hue;
-        if ( result > 360 )
+        if (result > 360)
             result = result - 360;
-        if ( result < 0 )
+        if (result < 0)
             result = result + 360;
         return result;
     }
@@ -76,7 +76,7 @@ public class DominantColorUtils
         var q = Convert.ToInt32(value * (1 - f * saturation));
         var t = Convert.ToInt32(value * (1 - (1 - f) * saturation));
 
-        switch ( hi )
+        switch (hi)
         {
             case 0:
                 return Color.FromArgb(255, v, t, p);
@@ -101,18 +101,18 @@ public class DominantColorUtils
     /// <returns>Smoothed hue color histogram</returns>
     internal static Dictionary<int, uint> SmoothHistogram(Dictionary<int, uint> colorHueHistogram, int smoothFactor)
     {
-        if ( smoothFactor < 0 || smoothFactor > 360 )
+        if (smoothFactor < 0 || smoothFactor > 360)
             throw new ArgumentException("smoothFactor may not be negative or bigger then 360", nameof(smoothFactor));
-        if ( smoothFactor == 0 )
+        if (smoothFactor == 0)
             return new Dictionary<int, uint>(colorHueHistogram);
 
         var newHistogram = new Dictionary<int, uint>();
         var totalNrColumns = smoothFactor * 2 + 1;
-        for ( var i = 0; i <= 360; i++ )
+        for (var i = 0; i <= 360; i++)
         {
             uint sum = 0;
             uint average = 0;
-            for ( var x = i - smoothFactor; x <= i + smoothFactor; x++ )
+            for (var x = i - smoothFactor; x <= i + smoothFactor; x++)
             {
                 var hueIndex = CorrectHueIndex(x);
                 sum += colorHueHistogram[hueIndex];

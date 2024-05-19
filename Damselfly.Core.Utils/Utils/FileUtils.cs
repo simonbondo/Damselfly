@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -24,21 +24,21 @@ public static class FileUtils
     public static bool IsHidden(this FileInfo file)
     {
         // Ignore all hidden files.
-        if ( (file.Attributes & FileAttributes.Hidden) == FileAttributes.Hidden )
+        if ((file.Attributes & FileAttributes.Hidden) == FileAttributes.Hidden)
             return true;
 
         // Files are considered hidden if they're in a hidden folder too
         var dir = file.Directory;
 
-        while ( dir != null )
+        while (dir != null)
         {
-            if ( (dir.Attributes & FileAttributes.Hidden) == FileAttributes.Hidden )
+            if ((dir.Attributes & FileAttributes.Hidden) == FileAttributes.Hidden)
                 // Special case: on Windows, C:\ seems to always have the hidden
                 // attribute, which can result in the whole tree being assumed
                 // to be hidden. So we check for that by looking for the Parent
                 // to be null, and if it is, we ignore the hidden attribute.
                 // See https://github.com/Webreaper/Damselfly/issues/333
-                if ( dir.Parent != null )
+                if (dir.Parent != null)
                     return true;
 
             dir = dir.Parent;
@@ -56,26 +56,26 @@ public static class FileUtils
     /// <returns></returns>
     public static bool IsMonitoredFolder(this DirectoryInfo folder)
     {
-        if ( !folder.Exists )
+        if (!folder.Exists)
             return false;
 
-        if ( (folder.Attributes & FileAttributes.Hidden) == FileAttributes.Hidden )
+        if ((folder.Attributes & FileAttributes.Hidden) == FileAttributes.Hidden)
             return false;
 
-        if ( folder.FullName.Contains("@eaDir", StringComparison.OrdinalIgnoreCase) )
+        if (folder.FullName.Contains("@eaDir", StringComparison.OrdinalIgnoreCase))
             return false;
 
-        if ( folder.Name.StartsWith(".") )
+        if (folder.Name.StartsWith("."))
             return false;
 
-        if ( File.Exists(Path.Combine(folder.FullName, ".nomedia")) )
+        if (File.Exists(Path.Combine(folder.FullName, ".nomedia")))
             return false;
 
         // If the folder, or any of its descendents, start with a ., skip
         var parent = folder;
-        while ( parent != null )
+        while (parent != null)
         {
-            if ( parent.Name.StartsWith(".") )
+            if (parent.Name.StartsWith("."))
                 return false;
 
             parent = parent.Parent;
@@ -104,7 +104,7 @@ public static class FileUtils
                 .OrderByDescending(x => x.LastWriteTimeUtc)
                 .ToList();
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogWarning("Unable to read sub-directories from {0}: {1}", folder.FullName, ex.Message);
             subDirs = new List<DirectoryInfo>();
@@ -128,7 +128,7 @@ public static class FileUtils
     {
         const int delta = 5; // seconds
         var timeDiff = time1 - time2;
-        if ( Math.Abs(timeDiff.TotalSeconds) < delta )
+        if (Math.Abs(timeDiff.TotalSeconds) < delta)
             return true;
 
         return false;
@@ -146,7 +146,7 @@ public static class FileUtils
     {
         const int delta = 5; // seconds
         var timeDiff = file.LastWriteTimeUtc - lastModTimeUtc;
-        if ( Math.Abs(timeDiff.TotalSeconds) < delta )
+        if (Math.Abs(timeDiff.TotalSeconds) < delta)
             return true;
 
         return false;
@@ -175,7 +175,7 @@ public static class FileUtils
     {
         const int delta = 5; // seconds
         var timeDiff = file.CreationTimeUtc - createTimeUtc;
-        if ( Math.Abs(timeDiff.TotalSeconds) < delta )
+        if (Math.Abs(timeDiff.TotalSeconds) < delta)
             return true;
 
         return false;
@@ -224,14 +224,14 @@ public static class FileUtils
     /// <returns></returns>
     public static bool SafeDelete(this FileInfo fileToDelete)
     {
-        if ( fileToDelete.Exists )
+        if (fileToDelete.Exists)
             try
             {
                 fileToDelete.Delete();
                 Logging.LogWarning("Deleted file {0}", fileToDelete.FullName);
                 return true;
             }
-            catch ( Exception ex )
+            catch (Exception ex)
             {
                 Logging.LogWarning("Unable to delete file: {0}, {1}", fileToDelete.FullName, ex.Message);
             }

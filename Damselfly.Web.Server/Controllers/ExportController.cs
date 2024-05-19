@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.Constants;
+using Damselfly.Core.Constants;
 using Damselfly.Core.Database;
 using Damselfly.Core.Models;
 using Damselfly.Core.Services;
@@ -45,7 +45,7 @@ public class ExportController : ControllerBase
             db.DownloadConfigs.Update(config);
             await db.SaveChangesAsync("SaveExportConfig");
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             _logger.LogError($"Unexpected error saving export config: {ex}");
             throw;
@@ -57,13 +57,13 @@ public class ExportController : ControllerBase
     {
         try
         {
-            if ( db.DownloadConfigs.Any(x => x.Name.Equals(config.Name)) )
+            if (db.DownloadConfigs.Any(x => x.Name.Equals(config.Name)))
                 throw new ArgumentException($"Config {config.Name} already exists!");
 
             db.DownloadConfigs.Add(config);
             await db.SaveChangesAsync("SaveExportConfig");
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             _logger.LogError($"Unexpected error saving export config: {ex}");
             throw;

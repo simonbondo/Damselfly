@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Damselfly.Core.Interfaces;
 using Microsoft.AspNetCore.Identity;
 

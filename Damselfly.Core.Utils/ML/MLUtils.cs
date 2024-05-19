@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Reflection;
 
@@ -14,27 +14,27 @@ public static class MLUtils
 
             try
             {
-                if ( !Directory.Exists(modelFolder) )
+                if (!Directory.Exists(modelFolder))
                 {
                     var asm = Assembly.GetExecutingAssembly();
 
-                    if ( asm != null )
+                    if (asm != null)
                     {
                         Logging.Log($"Looking for ML models in {asm.Location}...");
 
-                        if ( File.Exists(asm.Location) )
+                        if (File.Exists(asm.Location))
                         {
                             var thisAsm = new FileInfo(asm.Location);
 
-                            if ( thisAsm != null && thisAsm.Directory != null )
+                            if (thisAsm != null && thisAsm.Directory != null)
                                 modelFolder = Path.Combine(thisAsm.Directory.FullName, "Models");
                         }
                     }
                 }
 
-                if ( Directory.Exists(modelFolder) ) return new DirectoryInfo(modelFolder);
+                if (Directory.Exists(modelFolder)) return new DirectoryInfo(modelFolder);
             }
-            catch ( Exception ex )
+            catch (Exception ex)
             {
                 Logging.LogError($"Exception evaluating models folder: {ex.Message}");
             }

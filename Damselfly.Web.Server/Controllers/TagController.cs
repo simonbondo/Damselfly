@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.DbModels.Models.APIModels;
+using Damselfly.Core.DbModels.Models.APIModels;
 using Damselfly.Core.Models;
 using Damselfly.Core.ScopedServices.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -43,9 +43,9 @@ public class TagController : ControllerBase
     }
 
     [HttpGet("/api/tag/{tagId}")]
-    public async Task<Tag> GetTag( int tagId )
+    public async Task<Tag> GetTag(int tagId)
     {
-        return await _tagSearch.GetTag( tagId );
+        return await _tagSearch.GetTag(tagId);
     }
 
     [HttpGet("/api/tags")]

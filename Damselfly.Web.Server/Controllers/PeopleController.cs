@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.Constants;
+using Damselfly.Core.Constants;
 using Damselfly.Core.Database;
 using Damselfly.Core.DbModels.Models.API_Models;
 using Damselfly.Core.DbModels.Models.APIModels;
@@ -14,15 +14,15 @@ namespace Damselfly.Web.Server.Controllers;
 //[Authorize(Policy = PolicyDefinitions.s_IsLoggedIn)]
 [ApiController]
 [Route("/api/people")]
-public class PeopleController( ImageRecognitionService _aiService, 
+public class PeopleController(ImageRecognitionService _aiService,
                                 IPeopleService _peopleService,
                                 ILogger<PeopleController> _logger,
                                 ImageCache _imageCache) : ControllerBase
 {
     [HttpGet("/api/person/{personId}")]
-    public async Task<Person> GetPerson( int personId )
+    public async Task<Person> GetPerson(int personId)
     {
-        return await _aiService.GetPerson( personId );
+        return await _aiService.GetPerson(personId);
     }
 
     [HttpGet("/api/people")]
@@ -40,9 +40,9 @@ public class PeopleController( ImageRecognitionService _aiService,
     }
 
     [HttpPut("/api/people/name")]
-    public async Task UpdatePersonName( NameChangeRequest req )
+    public async Task UpdatePersonName(NameChangeRequest req)
     {
-        await _aiService.UpdatePersonName( req );
+        await _aiService.UpdatePersonName(req);
     }
 
     [HttpGet("/api/people/needsmigration")]
@@ -50,10 +50,10 @@ public class PeopleController( ImageRecognitionService _aiService,
     {
         return await _peopleService.NeedsAIMigration();
     }
-    
+
     [HttpPost("/api/people/runaimigration")]
-    public async Task RunAIMigration( AIMigrationRequest req )
+    public async Task RunAIMigration(AIMigrationRequest req)
     {
-        await _aiService.ExecuteAIMigration( req );
+        await _aiService.ExecuteAIMigration(req);
     }
 }

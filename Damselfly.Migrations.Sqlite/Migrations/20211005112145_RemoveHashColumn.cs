@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.Utils;
+using Damselfly.Core.Utils;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable

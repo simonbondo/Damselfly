@@ -1,4 +1,4 @@
-﻿using Damselfly.Core.Models;
+using Damselfly.Core.Models;
 using Damselfly.Core.ScopedServices.ClientServices;
 using Damselfly.Core.ScopedServices.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -28,9 +28,9 @@ public class ClientFolderService : IFolderService
 
         var folderMap = folders.ToDictionary(x => x.FolderId, x => x);
 
-        foreach( var folder in folders )
+        foreach (var folder in folders)
         {
-            if( folder.ParentId != null && folderMap.TryGetValue( folder.ParentId.Value, out var parent ))
+            if (folder.ParentId != null && folderMap.TryGetValue(folder.ParentId.Value, out var parent))
                 parent.Children.Add(folder);
         }
 

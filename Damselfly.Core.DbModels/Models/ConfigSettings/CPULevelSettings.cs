@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Damselfly.Core.Constants;
 using Damselfly.Core.ScopedServices.Interfaces;
 using Damselfly.Core.Utils;
@@ -22,11 +22,11 @@ public class CPULevelSettings
         {
             var useAlternateLevel = false;
 
-            if ( EnableAltCPULevel && AltTimeStart.HasValue && AltTimeEnd.HasValue )
+            if (EnableAltCPULevel && AltTimeStart.HasValue && AltTimeEnd.HasValue)
             {
                 var now = DateTime.UtcNow.TimeOfDay;
 
-                if ( AltTimeStart < AltTimeEnd )
+                if (AltTimeStart < AltTimeEnd)
                     useAlternateLevel = AltTimeStart < now && now < AltTimeEnd;
                 else
                     useAlternateLevel = AltTimeStart < now || now < AltTimeEnd;
@@ -45,7 +45,7 @@ public class CPULevelSettings
 
         string? cpuTimeRangeSettings = null;
 
-        if ( EnableAltCPULevel )
+        if (EnableAltCPULevel)
             cpuTimeRangeSettings = $"{AltTimeStart.LocalTimeSpanToUTC()}-{AltTimeEnd.LocalTimeSpanToUTC()}";
 
         configService.Set(ConfigSettings.AltCPULimitTimes, cpuTimeRangeSettings);
@@ -62,11 +62,11 @@ public class CPULevelSettings
         CPULevelAlt = configService.GetInt(ConfigSettings.AltCPULimit, 75);
         var timeRangeStr = configService.Get(ConfigSettings.AltCPULimitTimes, "23:00-04:30");
 
-        if ( !string.IsNullOrEmpty(timeRangeStr) )
+        if (!string.IsNullOrEmpty(timeRangeStr))
         {
             var settings = timeRangeStr.Split("-");
 
-            if ( settings.Length == 2 )
+            if (settings.Length == 2)
             {
                 TimeSpan? start = TimeSpan.Parse(settings[0]);
                 TimeSpan? end = TimeSpan.Parse(settings[1]);
@@ -81,7 +81,7 @@ public class CPULevelSettings
     {
         var result = $"CPULevel={CPULevel}%";
 
-        if ( EnableAltCPULevel ) result += $", AltLevel={CPULevelAlt}% [{AltTimeStart} - {AltTimeEnd}]";
+        if (EnableAltCPULevel) result += $", AltLevel={CPULevelAlt}% [{AltTimeStart} - {AltTimeEnd}]";
 
         return result;
     }

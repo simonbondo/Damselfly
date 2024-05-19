@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -27,7 +27,7 @@ public class YoloScorer<T> where T : YoloModel
 
         var modelFullPath = Path.Combine(AppContext.BaseDirectory, _model.ModelPath);
 
-        if ( File.Exists(modelFullPath) )
+        if (File.Exists(modelFullPath))
         {
             _inference = new InferenceSession(modelFullPath);
             Logging.Log($"Initialised object detection with model: {modelFullPath}");
@@ -67,11 +67,11 @@ public class YoloScorer<T> where T : YoloModel
 
         image.ProcessPixelRows(pixelAccessor =>
         {
-            for ( var y = 0; y < pixelAccessor.Height; y++ )
+            for (var y = 0; y < pixelAccessor.Height; y++)
             {
                 var row = pixelAccessor.GetRowSpan(y);
 
-                for ( var x = 0; x < row.Length; x++ )
+                for (var x = 0; x < row.Length; x++)
                 {
                     tensor[0, 0, y, x] = row[x].R / 255.0F;
                     tensor[0, 1, y, x] = row[x].G / 255.0F;
@@ -90,7 +90,7 @@ public class YoloScorer<T> where T : YoloModel
     {
         var image = srcImage;
 
-        if ( image.Height > _model.Height || image.Width > _model.Width )
+        if (image.Height > _model.Height || image.Width > _model.Width)
             image = srcImage.Clone(x =>
             {
                 x.Resize(new ResizeOptions
@@ -111,7 +111,7 @@ public class YoloScorer<T> where T : YoloModel
 
         var output = new List<DenseTensor<float>>();
 
-        foreach ( var item in _model.OutputNames ) // add outputs for processing
+        foreach (var item in _model.OutputNames) // add outputs for processing
             output.Add(result.First(x => x.Name == item).Value as DenseTensor<float>);
         ;
 
@@ -125,7 +125,7 @@ public class YoloScorer<T> where T : YoloModel
     {
         var result = new List<YoloPrediction>();
 
-        if ( _model.Height != _model.Width )
+        if (_model.Height != _model.Width)
             throw new ArgumentException("Scale calculation will not work if model is not square");
 
         var longestSide = 0;
@@ -133,11 +133,11 @@ public class YoloScorer<T> where T : YoloModel
         var vOffset = 0.0f;
 
         // Need to take account of the padding, if the source image isn't square.
-        if ( height == width )
+        if (height == width)
         {
             longestSide = height;
         }
-        else if ( height > width )
+        else if (height > width)
         {
             // Portrait - padding is a negative horizontal offset
             hOffset = (height - width) / 2.0f;
@@ -153,17 +153,17 @@ public class YoloScorer<T> where T : YoloModel
         // Now calculate the scale as if the source image and model are both square.
         var scale = (float)longestSide / _model.Width;
 
-        for ( var i = 0; i < output.Length / _model.Dimensions; i++ ) // iterate tensor
+        for (var i = 0; i < output.Length / _model.Dimensions; i++) // iterate tensor
         {
-            if ( output[0, i, 4] <= _model.Confidence )
+            if (output[0, i, 4] <= _model.Confidence)
                 continue;
 
-            for ( var j = 5; j < _model.Dimensions; j++ ) // compute mul conf
+            for (var j = 5; j < _model.Dimensions; j++) // compute mul conf
                 output[0, i, j] = output[0, i, j] * output[0, i, 4]; // conf = obj_conf * cls_conf
 
-            for ( var k = 5; k < _model.Dimensions; k++ )
+            for (var k = 5; k < _model.Dimensions; k++)
             {
-                if ( output[0, i, k] <= _model.MulConfidence )
+                if (output[0, i, k] <= _model.MulConfidence)
                     continue;
 
                 var xMin = output[0, i, 0] - output[0, i, 2] / 2; // top left x
@@ -200,52 +200,52 @@ public class YoloScorer<T> where T : YoloModel
 
         var (xGain, yGain) = (_model.Width / (float)width, _model.Height / (float)height);
 
-        for ( var i = 0; i < output.Length; i++ ) // iterate outputs
+        for (var i = 0; i < output.Length; i++) // iterate outputs
         {
             var shapes = _model.Shapes[i]; // shapes per output
 
-            for ( var a = 0; a < _model.Anchors.Length; a++ ) // iterate anchors
-            for ( var y = 0; y < shapes; y++ ) // iterate rows
-            for ( var x = 0; x < shapes; x++ ) // iterate columns
-            {
-                var offset = (shapes * shapes * a + shapes * y + x) * _model.Dimensions;
+            for (var a = 0; a < _model.Anchors.Length; a++) // iterate anchors
+                for (var y = 0; y < shapes; y++) // iterate rows
+                    for (var x = 0; x < shapes; x++) // iterate columns
+                    {
+                        var offset = (shapes * shapes * a + shapes * y + x) * _model.Dimensions;
 
-                var buffer = output[i].Skip(offset).Take(_model.Dimensions).Select(Sigmoid).ToArray();
+                        var buffer = output[i].Skip(offset).Take(_model.Dimensions).Select(Sigmoid).ToArray();
 
-                var objConfidence = buffer[4]; // extract object confidence
+                        var objConfidence = buffer[4]; // extract object confidence
 
-                if ( objConfidence < _model.Confidence ) // check predicted object confidence
-                    continue;
+                        if (objConfidence < _model.Confidence) // check predicted object confidence
+                            continue;
 
-                var scores = buffer.Skip(5).Select(x => x * objConfidence).ToList();
+                        var scores = buffer.Skip(5).Select(x => x * objConfidence).ToList();
 
-                var mulConfidence = scores.Max(); // find the best label
+                        var mulConfidence = scores.Max(); // find the best label
 
-                if ( mulConfidence <= _model.MulConfidence ) // check class obj_conf * cls_conf confidence
-                    continue;
+                        if (mulConfidence <= _model.MulConfidence) // check class obj_conf * cls_conf confidence
+                            continue;
 
-                var rawX = (buffer[0] * 2 - 0.5f + x) * _model.Strides[i]; // predicted bbox x (center)
-                var rawY = (buffer[1] * 2 - 0.5f + y) * _model.Strides[i]; // predicted bbox y (center)
+                        var rawX = (buffer[0] * 2 - 0.5f + x) * _model.Strides[i]; // predicted bbox x (center)
+                        var rawY = (buffer[1] * 2 - 0.5f + y) * _model.Strides[i]; // predicted bbox y (center)
 
-                var rawW = MathF.Pow(buffer[2] * 2, 2) * _model.Anchors[i][a][0]; // predicted bbox width
-                var rawH = MathF.Pow(buffer[3] * 2, 2) * _model.Anchors[i][a][1]; // predicted bbox height
+                        var rawW = MathF.Pow(buffer[2] * 2, 2) * _model.Anchors[i][a][0]; // predicted bbox width
+                        var rawH = MathF.Pow(buffer[3] * 2, 2) * _model.Anchors[i][a][1]; // predicted bbox height
 
-                var xyxy = Xywh2xyxy(new[] { rawX, rawY, rawW, rawH });
+                        var xyxy = Xywh2xyxy(new[] { rawX, rawY, rawW, rawH });
 
-                var xMin = xyxy[0] / xGain; // final bbox tlx scaled with ratio (to original size)
-                var yMin = xyxy[1] / yGain; // final bbox tly scaled with ratio (to original size)
-                var xMax = xyxy[2] / xGain; // final bbox brx scaled with ratio (to original size)
-                var yMax = xyxy[3] / yGain; // final bbox bry scaled with ratio (to original size)
+                        var xMin = xyxy[0] / xGain; // final bbox tlx scaled with ratio (to original size)
+                        var yMin = xyxy[1] / yGain; // final bbox tly scaled with ratio (to original size)
+                        var xMax = xyxy[2] / xGain; // final bbox brx scaled with ratio (to original size)
+                        var yMax = xyxy[3] / yGain; // final bbox bry scaled with ratio (to original size)
 
-                var label = _model.Labels[scores.IndexOf(mulConfidence)];
+                        var label = _model.Labels[scores.IndexOf(mulConfidence)];
 
-                var prediction = new YoloPrediction(label, mulConfidence)
-                {
-                    Rectangle = new RectangleF(xMin, yMin, xMax - xMin, yMax - yMin)
-                };
+                        var prediction = new YoloPrediction(label, mulConfidence)
+                        {
+                            Rectangle = new RectangleF(xMin, yMin, xMax - xMin, yMax - yMin)
+                        };
 
-                result.Add(prediction);
-            }
+                        result.Add(prediction);
+                    }
         }
 
         return result;
@@ -268,26 +268,26 @@ public class YoloScorer<T> where T : YoloModel
 
         try
         {
-            foreach ( var item in items )
-            foreach ( var current in result.ToList() )
-            {
-                if ( current == item )
-                    continue;
+            foreach (var item in items)
+                foreach (var current in result.ToList())
+                {
+                    if (current == item)
+                        continue;
 
-                var (rect1, rect2) = (item.Rectangle, current.Rectangle);
+                    var (rect1, rect2) = (item.Rectangle, current.Rectangle);
 
-                var intersection = RectangleF.Intersect(rect1, rect2);
+                    var intersection = RectangleF.Intersect(rect1, rect2);
 
-                var intArea = intersection.Area();
-                var unionArea = rect1.Area() + rect2.Area() - intArea;
-                var overlap = intArea / unionArea;
+                    var intArea = intersection.Area();
+                    var unionArea = rect1.Area() + rect2.Area() - intArea;
+                    var overlap = intArea / unionArea;
 
-                if ( overlap > _model.Overlap )
-                    if ( item.Score > current.Score )
-                        result.Remove(current);
-            }
+                    if (overlap > _model.Overlap)
+                        if (item.Score > current.Score)
+                            result.Remove(current);
+                }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.Log($"Exception during object suppression: {ex}");
             result.Clear();

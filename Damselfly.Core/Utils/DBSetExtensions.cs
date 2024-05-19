@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -47,12 +47,12 @@ public static class DbSetExtensions
         var dbSet = db.Set<T>();
         var memberNames = new List<string>();
 
-        if ( updateExpression.Body is MemberInitExpression memberInitExpression )
-            foreach ( var item in memberInitExpression.Bindings )
-                if ( item is MemberAssignment assignment )
+        if (updateExpression.Body is MemberInitExpression memberInitExpression)
+            foreach (var item in memberInitExpression.Bindings)
+                if (item is MemberAssignment assignment)
                     memberNames.Add(item.Member.Name);
 
-        foreach ( var e in entities )
+        foreach (var e in entities)
         {
             var updated = compiledExpression.Invoke(e);
 

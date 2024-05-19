@@ -47,7 +47,7 @@ public class SkiaSharpProcessor : IImageProcessor
             var quality = SKFilterQuality.Medium;
             var srcBitmap = sourceBitmap;
 
-            foreach ( var pair in destFiles.OrderByDescending(x => x.Value.width) )
+            foreach (var pair in destFiles.OrderByDescending(x => x.Value.width))
             {
                 var dest = pair.Key;
                 var config = pair.Value;
@@ -57,15 +57,15 @@ public class SkiaSharpProcessor : IImageProcessor
                 // The thumbnail being generated is the smaller than the
                 // source. Calculate the scale factor by which we need to reduce
                 var widthScaleFactor = srcBitmap.Width / (float)config.width;
-                var heighScaleFactor = srcBitmap.Height / (float)config.height; 
-                
+                var heighScaleFactor = srcBitmap.Height / (float)config.height;
+
                 // If we're allowed to crop, pick the largest scale factor. Otherwise the smallest.
                 var scaleFactor = config.cropToRatio ? Math.Max(widthScaleFactor, heighScaleFactor) :
                                                             Math.Min(widthScaleFactor, heighScaleFactor);
 
                 // Ensure we only ever scale down, never up
-                scaleFactor = Math.Max( 1, scaleFactor);
-                
+                scaleFactor = Math.Max(1, scaleFactor);
+
                 using var scaledImage = new SKBitmap((int)(srcBitmap.Width / scaleFactor),
                     (int)(srcBitmap.Height / scaleFactor));
                 srcBitmap.ScalePixels(scaledImage.PeekPixels(), quality);
@@ -75,27 +75,27 @@ public class SkiaSharpProcessor : IImageProcessor
 
                 scale.Stop();
 
-                save = new Stopwatch( "SaveThumb" );
-                SaveBitmapAsJpeg( cropped, dest );
+                save = new Stopwatch("SaveThumb");
+                SaveBitmapAsJpeg(cropped, dest);
                 save.Stop();
 
                 // Now, use the previous scaled image as the basis for the
                 // next smaller thumbnail. This should reduce processing
                 // time as we only work on the large image on the first
                 // iteration
-                if( destFiles.Count > 1 )
+                if (destFiles.Count > 1)
                     srcBitmap = scaledImage.Copy();
 
                 result.ThumbsGenerated = true;
 
-                if ( pair.Value.size == ThumbSize.ExtraLarge )
+                if (pair.Value.size == ThumbSize.ExtraLarge)
                     Logging.Log(
                         $"{pair.Value.size} thumb created for {source.Name} [load: {load.ElapsedTime}ms, scale: {scale.ElapsedTime}ms, save: {save.ElapsedTime}ms]");
             }
 
             thumbs.Stop();
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.Log($"Exception during Thumbnail processing: {ex.Message}");
             throw;
@@ -104,15 +104,15 @@ public class SkiaSharpProcessor : IImageProcessor
         return Task.FromResult(result);
     }
 
-    private void SaveBitmapAsJpeg( SKBitmap bitmap, FileInfo dest )
+    private void SaveBitmapAsJpeg(SKBitmap bitmap, FileInfo dest)
     {
-        using var data = bitmap.Encode( SKEncodedImageFormat.Jpeg, 90 );
+        using var data = bitmap.Encode(SKEncodedImageFormat.Jpeg, 90);
 
         // TODO: For configs flagged batchcreate == false, perhaps don't write to disk
         // and just pass back the stream?
-        using( var stream = new FileStream( dest.FullName, FileMode.Create, FileAccess.Write ) )
+        using (var stream = new FileStream(dest.FullName, FileMode.Create, FileAccess.Write))
         {
-            data.SaveTo( stream );
+            data.SaveTo(stream);
         }
     }
 
@@ -140,7 +140,7 @@ public class SkiaSharpProcessor : IImageProcessor
             using var data = cropped.Encode(SKEncodedImageFormat.Jpeg, 90);
             data.SaveTo(destStream);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"Exception during Skia Crop processing: {ex.Message}");
             throw;
@@ -165,7 +165,7 @@ public class SkiaSharpProcessor : IImageProcessor
     /// <returns></returns>
     public async Task GetCroppedFile(FileInfo source, int x, int y, int width, int height, FileInfo dest)
     {
-        using ( var stream = new FileStream(dest.FullName, FileMode.Create, FileAccess.Write) )
+        using (var stream = new FileStream(dest.FullName, FileMode.Create, FileAccess.Write))
         {
             await CropImage(source, x, y, width, height, stream);
         }
@@ -202,7 +202,7 @@ public class SkiaSharpProcessor : IImageProcessor
 
             using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA1);
 
-            for ( var row = 0; row < sourceBitmap.Height; row++ )
+            for (var row = 0; row < sourceBitmap.Height; row++)
             {
                 var rowPixels = pixels.Slice(row * sourceBitmap.RowBytes, sourceBitmap.RowBytes);
 
@@ -217,7 +217,7 @@ public class SkiaSharpProcessor : IImageProcessor
             hashWatch.Stop();
             Logging.LogVerbose($"Hashed image ({result}) in {hashWatch.HumanElapsedTime}");
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             Logging.LogError($"Exception while calculating hash: {ex.Message}");
         }
@@ -237,12 +237,12 @@ public class SkiaSharpProcessor : IImageProcessor
         var cropTopBottom = 0;
 
         // calculate amount of pixels to remove from sides and top/bottom
-        if ( maxSize.Width / original.Width < maxSize.Height / original.Height ) // crop sides
+        if (maxSize.Width / original.Width < maxSize.Height / original.Height) // crop sides
             cropSides = original.Width - (int)Math.Round(original.Height / maxSize.Height * maxSize.Width);
         else
             cropTopBottom = original.Height - (int)Math.Round(original.Width / maxSize.Width * maxSize.Height);
 
-        if ( cropSides > 0 || cropTopBottom > 0 )
+        if (cropSides > 0 || cropTopBottom > 0)
         {
             // setup crop rect
             var cropRect = new SKRectI
@@ -342,7 +342,7 @@ public class SkiaSharpProcessor : IImageProcessor
         var useWidth = original.Width;
         var useHeight = original.Height;
         Action<SKCanvas> transform = canvas => { };
-        switch ( origin )
+        switch (origin)
         {
             case SKEncodedOrigin.TopLeft:
                 break;
@@ -400,7 +400,7 @@ public class SkiaSharpProcessor : IImageProcessor
         }
 
         var rotated = new SKBitmap(useWidth, useHeight);
-        using ( var canvas = new SKCanvas(rotated) )
+        using (var canvas = new SKCanvas(rotated))
         {
             transform.Invoke(canvas);
             canvas.DrawBitmap(original, 0, 0);
@@ -425,9 +425,9 @@ public class SkiaSharpProcessor : IImageProcessor
         float maxSize = config.MaxImageSize;
         var resizeFactor = 1f;
 
-        if ( bitmap.Width > maxSize )
+        if (bitmap.Width > maxSize)
             resizeFactor = maxSize / bitmap.Width;
-        else if ( bitmap.Height > maxSize ) resizeFactor = maxSize / bitmap.Height;
+        else if (bitmap.Height > maxSize) resizeFactor = maxSize / bitmap.Height;
 
         var targetWidth = (int)Math.Round(bitmap.Width * resizeFactor);
         var targetHeight = (int)Math.Round(bitmap.Height * resizeFactor);
@@ -441,7 +441,7 @@ public class SkiaSharpProcessor : IImageProcessor
         canvas.DrawBitmap(bitmap, 0, 0);
         canvas.ResetMatrix();
 
-        if ( !string.IsNullOrEmpty(config.WatermarkText) )
+        if (!string.IsNullOrEmpty(config.WatermarkText))
         {
             using var font = SKTypeface.FromFamilyName("Arial");
             using var brush = new SKPaint

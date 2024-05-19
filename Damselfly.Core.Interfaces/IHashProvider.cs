@@ -1,4 +1,4 @@
-﻿namespace Damselfly.Core.Interfaces;
+namespace Damselfly.Core.Interfaces;
 
 public interface IHashProvider
 {

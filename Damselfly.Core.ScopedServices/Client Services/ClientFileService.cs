@@ -1,4 +1,4 @@
-﻿
+
 using Damselfly.Core.DbModels.Models.APIModels;
 using Damselfly.Core.ScopedServices.ClientServices;
 using Damselfly.Core.ScopedServices.Interfaces;
@@ -12,7 +12,7 @@ public class ClientFileService : IFileService
     private readonly NotificationsService _notifications;
     private readonly RestClient _restClient;
 
-    public ClientFileService( NotificationsService notifications, RestClient restClient, IUserService userService,
+    public ClientFileService(NotificationsService notifications, RestClient restClient, IUserService userService,
         ILogger<ClientStatusService> logger)
     {
         _restClient = restClient;
@@ -24,13 +24,13 @@ public class ClientFileService : IFileService
     {
         try
         {
-            var response = await _restClient.CustomPostAsJsonAsync<MultiImageRequest, bool>( "/api/files/delete", req );
+            var response = await _restClient.CustomPostAsJsonAsync<MultiImageRequest, bool>("/api/files/delete", req);
 
             return response;
         }
-        catch( Exception ex )
+        catch (Exception ex)
         {
-            _logger.LogError( $"Exception during image delete API call: {ex}" );
+            _logger.LogError($"Exception during image delete API call: {ex}");
         }
 
         return false;
@@ -40,13 +40,13 @@ public class ClientFileService : IFileService
     {
         try
         {
-            var response = await _restClient.CustomPostAsJsonAsync<ImageMoveRequest, bool>( "/api/files/move", req );
+            var response = await _restClient.CustomPostAsJsonAsync<ImageMoveRequest, bool>("/api/files/move", req);
 
             return response;
         }
-        catch( Exception ex )
+        catch (Exception ex)
         {
-            _logger.LogError( $"Exception during image move API call: {ex}" );
+            _logger.LogError($"Exception during image move API call: {ex}");
         }
 
         return false;

@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using Damselfly.Core.DbModels.Images;
 using Damselfly.Core.Interfaces;
 using Damselfly.Core.Utils;
@@ -26,7 +26,7 @@ public class ImageMagickProcessor : IImageProcessor
     {
         get
         {
-            if ( imAvailable )
+            if (imAvailable)
                 return verString;
 
             return "N/A";
@@ -37,7 +37,7 @@ public class ImageMagickProcessor : IImageProcessor
     {
         get
         {
-            if ( imAvailable )
+            if (imAvailable)
                 return s_imageExtensions;
 
             return new string[0];
@@ -62,7 +62,7 @@ public class ImageMagickProcessor : IImageProcessor
         var maxHeight = destFiles.Max(x => x.Value.height);
         var maxWidth = destFiles.Max(x => x.Value.width);
 
-        if ( s_useGraphicsMagick )
+        if (s_useGraphicsMagick)
             args = string.Format(" convert -size {0}x{1} \"{2}\" -quality 90  -unsharp 0.5x0.5+1.25+0.0 ", maxHeight,
                 maxWidth, source.FullName);
         else
@@ -74,13 +74,13 @@ public class ImageMagickProcessor : IImageProcessor
         var argsList = new List<string>();
 
         // First pre-check whether the thumbs exist - don't want to create them if they don't.
-        foreach ( var pair in destFiles.OrderByDescending(x => x.Value.width) )
+        foreach (var pair in destFiles.OrderByDescending(x => x.Value.width))
         {
             var dest = pair.Key;
             var config = pair.Value;
 
             // File didn't exist, so add it to the command-line. 
-            if ( s_useGraphicsMagick )
+            if (s_useGraphicsMagick)
                 argsList.Add(string.Format("-thumbnail {0}x{1} -auto-orient -write \"{2}\" ", config.height,
                     config.width, dest.FullName));
             else
@@ -88,7 +88,7 @@ public class ImageMagickProcessor : IImageProcessor
                     config.width, dest.FullName));
         }
 
-        if ( argsList.Any() )
+        if (argsList.Any())
         {
             var lastArg = argsList.Last();
             lastArg = lastArg.Replace(" -write ", " ");
@@ -96,7 +96,7 @@ public class ImageMagickProcessor : IImageProcessor
 
             args += string.Join(" ", argsList);
 
-            if ( altSource != null )
+            if (altSource != null)
             {
                 source = altSource;
                 Logging.LogVerbose("File {0} exists - using it as source for smaller thumbs.", altSource.Name);
@@ -120,13 +120,13 @@ public class ImageMagickProcessor : IImageProcessor
 
                 var success = process.Start();
 
-                if ( success )
+                if (success)
                 {
                     process.BeginErrorReadLine();
                     process.BeginOutputReadLine();
                     await process.WaitForExitAsync();
 
-                    if ( process.ExitCode == 0 )
+                    if (process.ExitCode == 0)
                     {
                         result.ThumbsGenerated = true;
                         Logging.LogVerbose("Execution complete.");
@@ -137,7 +137,7 @@ public class ImageMagickProcessor : IImageProcessor
                     }
                 }
             }
-            catch ( Exception ex )
+            catch (Exception ex)
             {
                 Logging.LogError("Conversion failed. Unable to start process: {0}", ex.Message);
                 Logging.LogError($"Failed commandline was: {exeToUse} {args}");
@@ -174,11 +174,11 @@ public class ImageMagickProcessor : IImageProcessor
         var improcess = new ProcessStarter();
         imAvailable = improcess.StartProcess(imageMagickExe, "--version");
 
-        if ( imAvailable )
+        if (imAvailable)
         {
             var version = improcess.OutputText?.Split('\n').FirstOrDefault() ?? string.Empty;
 
-            if ( !string.IsNullOrEmpty(version) )
+            if (!string.IsNullOrEmpty(version))
             {
                 verString = $"v{version}";
                 Logging.Log($"ImageMagick found: {verString}");
@@ -197,10 +197,10 @@ public class ImageMagickProcessor : IImageProcessor
 
     private static void Process_OutputDataReceived(object sender, DataReceivedEventArgs e)
     {
-        if ( !Logging.Verbose )
+        if (!Logging.Verbose)
             return;
 
-        if ( !string.IsNullOrEmpty(e.Data) )
+        if (!string.IsNullOrEmpty(e.Data))
             Logging.LogVerbose(e.Data);
     }
 }
