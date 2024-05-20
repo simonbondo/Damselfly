@@ -76,7 +76,7 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
         using var scope = _scopeFactory.CreateScope();
         using var db = scope.ServiceProvider.GetService<ImageContext>();
 
-        // Find all images where there's either no metadata, or where the image or sidecar file 
+        // Find all images where there's either no metadata, or where the image or sidecar file
         // was updated more recently than the image metadata
         var imageIds = await db.Images.Where(x => x.MetaData == null ||
                                                   x.LastUpdated > x.MetaData.LastUpdated)
@@ -159,7 +159,7 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
         // Only query the DB if we have more than 2 chars.
         if (searchText.Length > 1)
         {
-            // We include any keyword that contains the search term - but exclude 
+            // We include any keyword that contains the search term - but exclude
             // the actual search term, as we'll add it explicitly at the top of the list.
             var tags = CachedTags
                 .Where(x => x.Keyword.Contains(searchText, StringComparison.OrdinalIgnoreCase)
@@ -326,7 +326,7 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
                 {
                     RecogntionSource = ImageObject.RecognitionType.ExternalApp,
                     ImageId = image.ImageId,
-                    // Note that x and y in this case are the centrepoints of the faces. 
+                    // Note that x and y in this case are the centrepoints of the faces.
                     // Make sure we offset the rects by half their width and height
                     // to centre them on the face.
                     RectX = (int)((x - w / 2) * image.MetaData.Width),
@@ -449,9 +449,7 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
 
                 if (gpsDirectory != null)
                 {
-                    var location = gpsDirectory.GetGeoLocation();
-
-                    if (location != null)
+                    if (gpsDirectory.TryGetGeoLocation(out var location))
                     {
                         imgMetaData.Longitude = location.Longitude;
                         imgMetaData.Latitude = location.Latitude;
@@ -639,7 +637,7 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
             // Update the timestamp regardless of whether we succeeded to read the metadata
             imgMetaData.LastUpdated = updateTimeStamp;
 
-            // Scan the image from the 
+            // Scan the image from the
             if (GetImageMetaData(ref imgMetaData, out var exifKeywords, out xmpFaces))
             {
                 // Scan for sidecar files
@@ -1151,7 +1149,7 @@ public class MetaDataService : IProcessJobFactory, ITagSearchService, IRescanPro
 
             await db.BulkInsert(db.Tags, newTags);
 
-            // Add the new items to the cache. 
+            // Add the new items to the cache.
             newTags.ForEach(x => _tagCache[x.Keyword] = x);
         }
 
