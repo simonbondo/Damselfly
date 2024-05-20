@@ -17,8 +17,8 @@ namespace Damselfly.Core.ScopedServices;
 
 /// <summary>
 ///     Singleton service which is responsible for maintaining the selection
-///     of images saved in the 'basket' for export, sharing, upload and other p
-///     rocessing.
+///     of images saved in the 'basket' for export, sharing, upload and other
+///     processing.
 /// </summary>
 public class BasketService : IBasketService
 {
@@ -135,7 +135,7 @@ public class BasketService : IBasketService
 
         var myBaskets = await db.Baskets.Where(x => x.UserId == null || x.UserId == userId)
             .OrderBy(x => x.UserId == null ? 1 : 0)
-            .ThenBy(x => x.Name.ToLower())
+            .ThenBy(x => (x.Name ?? string.Empty).ToLower())
             .Include(x => x.BasketEntries)
             .ToListAsync();
 
@@ -143,7 +143,7 @@ public class BasketService : IBasketService
         {
             var newBasketName = userId.HasValue ? s_MyBasket : s_DefaultBasket;
 
-            if (userId.HasValue && myBaskets.Any(x => x.Name.Equals(s_DefaultBasket)))
+            if (userId.HasValue && myBaskets.Any(x => string.Equals(x.Name, s_DefaultBasket)))
                 // Don't create another default basket if one already exists.
                 return myBaskets;
 

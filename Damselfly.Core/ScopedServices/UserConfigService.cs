@@ -40,7 +40,7 @@ public class UserConfigService : BaseConfigService, IDisposable
     protected override async Task<List<ConfigSetting>> LoadAllSettings()
     {
         using var scope = _scopeFactory.CreateScope();
-        using var db = scope.ServiceProvider.GetService<ImageContext>();
+        using var db = scope.ServiceProvider.GetRequiredService<ImageContext>();
 
         var settings = await db.ConfigSettings.Where(x => x.UserId == _userService.UserId).ToListAsync();
 

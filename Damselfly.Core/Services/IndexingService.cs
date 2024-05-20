@@ -57,7 +57,7 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
         if (_fullIndexComplete)
         {
             using var scope = _scopeFactory.CreateScope();
-            using var db = scope.ServiceProvider.GetService<ImageContext>();
+            using var db = scope.ServiceProvider.GetRequiredService<ImageContext>();
 
             // Now, see if there's any folders that have a null scan date.
             var folders = await db.Folders.Where(x => x.FolderScanDate == null)
@@ -103,7 +103,7 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
         try
         {
             using var scope = _scopeFactory.CreateScope();
-            using var db = scope.ServiceProvider.GetService<ImageContext>();
+            using var db = scope.ServiceProvider.GetRequiredService<ImageContext>();
 
             var updated = await db.BatchUpdate(db.Folders, p => p.SetProperty(x => x.FolderScanDate, x => null));
 
@@ -128,7 +128,7 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
         try
         {
             using var scope = _scopeFactory.CreateScope();
-            using var db = scope.ServiceProvider.GetService<ImageContext>();
+            using var db = scope.ServiceProvider.GetRequiredService<ImageContext>();
 
             var folders = await db.Images.Where(x => images.Contains(x.ImageId))
                 .Select(x => x.Folder.FolderId)
@@ -173,7 +173,7 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
     /// <param name="parent"></param>
     public async Task IndexFolder(DirectoryInfo folder, Folder parent)
     {
-        Folder folderToScan = null;
+        var folderToScan = default(Folder);
         var foldersChanged = false;
 
         Logging.LogVerbose($"Indexing {folder.FullName}...");
@@ -187,22 +187,22 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
         try
         {
             using var scope = _scopeFactory.CreateScope();
-            using var db = scope.ServiceProvider.GetService<ImageContext>();
+            using var db = scope.ServiceProvider.GetRequiredService<ImageContext>();
 
             // Load the existing folder and its images from the DB
             folderToScan = await db.Folders
-                .Where(x => x.Path.Equals(folder.FullName))
+                .Where(x => string.Equals(x.Path, folder.FullName))
                 .Include(x => x.Images)
                 .FirstOrDefaultAsync();
 
             if (folderToScan == null)
             {
-                Logging.LogVerbose("Scanning new folder: {0}\\{1}", folder.Parent.Name, folder.Name);
+                Logging.LogVerbose("Scanning new folder: {0}\\{1}", folder.Parent?.Name, folder.Name);
                 folderToScan = new Folder { Path = folder.FullName };
             }
             else
             {
-                Logging.LogVerbose("Scanning existing folder: {0}\\{1} ({2} images in DB)", folder.Parent.Name,
+                Logging.LogVerbose("Scanning existing folder: {0}\\{1} ({2} images in DB)", folder.Parent?.Name,
                     folder.Name, folderToScan.Images.Count());
             }
 
@@ -213,7 +213,7 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
                 if (parent != null)
                     folderToScan.ParentId = parent.FolderId;
 
-                // New folder, add it. 
+                // New folder, add it.
                 db.Folders.Add(folderToScan);
                 await db.SaveChangesAsync("AddFolders");
                 foldersChanged = true;
@@ -230,7 +230,7 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
         }
         catch (Exception ex)
         {
-            Logging.LogError($"Unexpected exception scanning folder {folderToScan.Name}: {ex.Message}");
+            Logging.LogError($"Unexpected exception scanning folder {folderToScan?.Name}: {ex.Message}");
             if (ex.InnerException != null)
                 Logging.LogError($" Inner exception: {ex.InnerException.Message}");
         }
@@ -305,9 +305,9 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
         var folderImageCount = 0;
 
         using var scope = _scopeFactory.CreateScope();
-        using var db = scope.ServiceProvider.GetService<ImageContext>();
+        using var db = scope.ServiceProvider.GetRequiredService<ImageContext>();
 
-        // Get the folder with the image list from the DB. 
+        // Get the folder with the image list from the DB.
         var dbFolder = await db.Folders.Where(x => x.FolderId == folderIdToScan)
             .Include(x => x.Images)
             .FirstOrDefaultAsync();
@@ -324,7 +324,7 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
         // First, see if images have been added or removed since we last indexed,
         // by comparing the list of known image filenames with what's on disk.
         // If they're different, we disregard the last scan date of the folder and
-        // force the update. 
+        // force the update.
         var fileListIsEqual =
             allImageFiles.Select(x => x.Name).ArePermutations(dbFolder.Images.Select(y => y.FileName));
 
@@ -345,7 +345,7 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
             try
             {
                 var dbImage = dbFolder.Images.FirstOrDefault(x =>
-                    x.FileName.Equals(file.Name, StringComparison.OrdinalIgnoreCase));
+                    string.Equals(x.FileName, file.Name, StringComparison.OrdinalIgnoreCase));
 
                 if (dbImage != null)
                 {
@@ -460,7 +460,7 @@ public class IndexingService : IProcessJobFactory, IRescanProvider
         try
         {
             using var scope = _scopeFactory.CreateScope();
-            using var db = scope.ServiceProvider.GetService<ImageContext>();
+            using var db = scope.ServiceProvider.GetRequiredService<ImageContext>();
 
             var queryable = db.Folders.Where(f => folderIds.Contains(f.FolderId));
             await db.BatchUpdate(queryable, p => p.SetProperty(x => x.FolderScanDate, x => null));

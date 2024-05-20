@@ -11,7 +11,6 @@ using Damselfly.Shared.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
-using WordPressPCL.Models;
 
 namespace Damselfly.Core.Services;
 
@@ -96,8 +95,8 @@ public class ImageCache : IImageCacheService
             // should be in the cache this time
             foreach (var imgId in imgIds)
             {
-                Image image;
-                if (!_memoryCache.TryGetValue(imgId, out image))
+                Image? image;
+                if (!_memoryCache.TryGetValue(imgId, out image) || image is null)
                 {
                     // Somehow an item which we just supposedly cached, is no
                     // longer in the cache. This is very bad indeed.
@@ -129,7 +128,7 @@ public class ImageCache : IImageCacheService
             Logging.Log($"Warming up image cache with up to {warmupCount} most recent images.");
 
             using var scope = _scopeFactory.CreateScope();
-            using var db = scope.ServiceProvider.GetService<ImageContext>();
+            using var db = scope.ServiceProvider.GetRequiredService<ImageContext>();
 
             var warmupIds = await db.Images.OrderByDescending(x => x.SortDate)
                 .Take(warmupCount)
@@ -188,7 +187,7 @@ public class ImageCache : IImageCacheService
         var tagwatch = new Stopwatch("EnrichCache");
 
         using var scope = _scopeFactory.CreateScope();
-        using var db = scope.ServiceProvider.GetService<ImageContext>();
+        using var db = scope.ServiceProvider.GetRequiredService<ImageContext>();
 
         // This is THE query. It has to be fast. The ImageTags many-to-many
         // join is *really* slow on a standard EFCore query, so we have to
@@ -242,7 +241,7 @@ public class ImageCache : IImageCacheService
     private async Task<Image> GetImage(Image image)
     {
         using var scope = _scopeFactory.CreateScope();
-        using var db = scope.ServiceProvider.GetService<ImageContext>();
+        using var db = scope.ServiceProvider.GetRequiredService<ImageContext>();
 
         var watch = new Stopwatch("EnrichForCache");
         var loadtype = "unknown";

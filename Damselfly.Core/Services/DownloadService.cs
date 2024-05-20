@@ -226,7 +226,7 @@ public class DownloadService : IDownloadService
 
                         // Linux memory stream zip entries don't get good permissions, so fix that here:
                         // https://github.com/dotnet/runtime/issues/17912
-                        // This also applies to files which don't have valid permissions on the current 
+                        // This also applies to files which don't have valid permissions on the current
                         // file system, but can be read by the app as root.
                         // https://github.com/dotnet/runtime/issues/76006
                         entry.ExternalAttributes = entry.ExternalAttributes | (Convert.ToInt32("664", 8) << 16);
@@ -293,9 +293,9 @@ public class DownloadService : IDownloadService
     public async Task SaveDownloadConfig(ExportConfig config)
     {
         using var scope = _scopeFactory.CreateScope();
-        using var db = scope.ServiceProvider.GetService<ImageContext>();
+        using var db = scope.ServiceProvider.GetRequiredService<ImageContext>();
 
-        var existing = db.DownloadConfigs.SingleOrDefault(x => x.Name.Equals(config.Name));
+        var existing = db.DownloadConfigs.SingleOrDefault(x => string.Equals(x.Name, config.Name));
 
         if (existing != null)
         {

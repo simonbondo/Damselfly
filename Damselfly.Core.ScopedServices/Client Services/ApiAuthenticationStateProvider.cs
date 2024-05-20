@@ -58,11 +58,12 @@ public class ApiAuthenticationStateProvider : AuthenticationStateProvider
         {
             keyValuePairs.TryGetValue(ClaimTypes.Role, out var roles);
 
-            if (roles != null)
+            if (roles is not null)
             {
-                if (roles.ToString().Trim().StartsWith("["))
+                var roleString = $"{roles}";
+                if (roleString.Trim().StartsWith('['))
                 {
-                    var parsedRoles = JsonSerializer.Deserialize<string[]>(roles.ToString());
+                    var parsedRoles = JsonSerializer.Deserialize<string[]>(roleString);
 
                     if (parsedRoles != null)
                     {
@@ -76,7 +77,7 @@ public class ApiAuthenticationStateProvider : AuthenticationStateProvider
                 }
                 else
                 {
-                    claims.Add(new Claim(ClaimTypes.Role, roles.ToString()));
+                    claims.Add(new Claim(ClaimTypes.Role, roleString));
                     _logger.LogTrace($"Parsed role from JWT: [{roles}]");
                 }
 

@@ -50,7 +50,7 @@ public class FolderService : IFolderService
         conflator.HandleEvent(ConflatedCallback);
     }
 
-    private void ConflatedCallback(object state)
+    private void ConflatedCallback(object? state)
     {
         _ = LoadFolders();
     }
@@ -72,7 +72,7 @@ public class FolderService : IFolderService
     public async Task LoadFolders()
     {
         using var scope = _scopeFactory.CreateScope();
-        using var db = scope.ServiceProvider.GetService<ImageContext>();
+        using var db = scope.ServiceProvider.GetRequiredService<ImageContext>();
 
         var watch = new Stopwatch("GetFolders");
 
